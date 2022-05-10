@@ -17,8 +17,9 @@ public class App {
 		game.printPlayers();
 		game.askUserForHand();
 		//TODO: this needs to loop
-		game.getGuessFromUser();
-		
+		while(true) {
+			game.getGuessFromUser();
+		}
 		//1)
 		//Ask user the size of their hand
 		
