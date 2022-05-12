@@ -25,4 +25,10 @@ public class Player {
 	public ArrayList<Guess> getNotePad() {
 		return notePad;
 	}
+	public void printHand() {
+		for(Card c : hand) {
+			System.out.println(c.getName() + "-" + c.getType() );
+		}
+	}
+	
 }

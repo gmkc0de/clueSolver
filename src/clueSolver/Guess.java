@@ -35,5 +35,7 @@ public class Guess {
 	public String getWeapon() {
 		return weapon;
 	}
-	
+	public String toString() {
+		return"";
+	}
 }

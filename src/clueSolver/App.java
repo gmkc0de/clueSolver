@@ -3,7 +3,6 @@ package clueSolver;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class App {
@@ -15,8 +14,10 @@ public class App {
 		game.printAllCards();
 		game.addPlayers();
 		game.printPlayers();
+		//TODO: Improve ask for hand so that a person can input card name, 
+		//and the clueSolver will know the card type (saves user typing card type)
 		game.askUserForHand();
-		//TODO: this needs to loop
+		
 		while(true) {
 			game.getGuessFromUser();
 		}

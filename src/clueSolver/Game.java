@@ -92,13 +92,13 @@ public class Game {
 		System.out.println();
 	}
 
-	public Card isRealCard(String name, String type) {
+	public boolean isRealCard(String name ) {
 		for (Card current : getAllCards()) {
-			if (current.getName().equals(name) && current.getType().equals(type)) {
-				return current;
+			if (current.getName().equals(name)) {
+				return true;
 			}
 		}
-		return null;
+		return false;
 	}
 
 	public void askUserForHand() throws Exception {
@@ -106,8 +106,7 @@ public class Game {
 		// ask for each card they were dealt and add the card to players hand
 		for (int i = 0; i < c; i++) {
 			String nameOfCard = App.getStringInputFromUser("please enter a cards name.");
-			String typeofCard = App.getStringInputFromUser("please enter the same cards type.");
-			Card thisCard = isRealCard(nameOfCard, typeofCard);
+			Card thisCard = getMatchingCard(nameOfCard);
 			if (thisCard != null) {
 				players.get(0).getHandList().add(thisCard);
 				System.out.println(">succesfuly added<");
@@ -122,6 +121,7 @@ public class Game {
 
 	public Guess getGuessFromUser() throws Exception {
 		// TODO: handle invalid input so that players can reenter their data
+		//TODO: condense questions so player always enters a card and a type at the same time
 		String name = App.getStringInputFromUser("record a guesss who is making this guess?");
 		String sus = App.getStringInputFromUser("please input suspect");
 		String weapon = App.getStringInputFromUser("please input weapon");
@@ -132,10 +132,9 @@ public class Game {
 			if (disPlayer != null) {
 				if (name.equals(players.get(0).getName())) {
 					String disCardName = App.getStringInputFromUser("what was the disproving cards name?");
-					String disCardtype = App.getStringInputFromUser("what was the disproving cards type");
-					Card thisCard = getMatchingCard(disCardName, disCardtype);
+					Card thisCard = getMatchingCard(disCardName);
 					Guess g = new Guess(name, sus, room, weapon, disPlayer, thisCard );
-					if (isRealCard(disCardName, disCardtype) != null) {
+					if (isRealCard(disCardName)) {
 						players.get(0).getNotePad().add(g);
 						disPlayer.getHandList().add(thisCard);
 						Guess n = new Guess(name, sus, room, weapon, disPlayer, thisCard);
@@ -165,9 +164,9 @@ public class Game {
 		return null;
 	}
 
-	private Card getMatchingCard(String disCardName, String disCardtype) {
+	private Card getMatchingCard(String disCardName) {
 		for(int i = 0; i < allCards.length; i++) {
-			if(allCards[i].getName().equals(disCardName) && allCards[i].getType().equals(disCardtype)) {
+			if(allCards[i].getName().equals(disCardName)) {
 				return allCards[i];
 			}
 		}
@@ -202,7 +201,7 @@ public class Game {
 	}
 
 	public boolean isValidGuess(String sus, String w, String room) {
-		if (isRealCard(sus, "suspect") != null && isRealCard(w, "weapon") != null && isRealCard(room, "room") != null) {
+		if (isRealCard(sus) && isRealCard(w) && isRealCard(room)) {
 			return true;
 		}
 		return false;
