@@ -42,13 +42,26 @@ public class Game {
 			System.out.println(allCards[i]);
 		}
 	}
-	//TODO return new game object populated with players and their hands
-	public static Game createTestGame() {
-		Game g = new Game();
-		Player p = new Player("glynis");
-		g.addPlayer(p);
+
+	public static Game createTestGame(Card[] allC) {
+		Game game = new Game();
+		Player g = new Player("g");
+		Player h = new Player("h");
+		Player j = new Player("j");
+		game.addPlayer(g);
+		game.addPlayer(h);
+		game.addPlayer(j);
+		ArrayList<Card> cardList = new ArrayList<Card>();
+		for(Card c: allC) {
+			cardList.add(c);
+		}
+		for(int i = 0; i < 3; i++) {
+			int num = (int)Math.random() * cardList.size();
+			g.getHandList().add(cardList.get(num));
+			cardList.remove(num);
+		}
 		
-		return g;
+		return game;
 	}
 
 	public void addPlayer(Player p) {
