@@ -42,6 +42,19 @@ public class Game {
 			System.out.println(allCards[i]);
 		}
 	}
+	//TODO return new game object populated with players and their hands
+	public static Game createTestGame() {
+		Game g = new Game();
+		Player p = new Player("glynis");
+		g.addPlayer(p);
+		
+		return g;
+	}
+
+	public void addPlayer(Player p) {
+		getPlayers().add(p);
+		
+	}
 
 	public ArrayList<Player> getPlayers() {
 		return players;
