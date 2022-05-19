@@ -22,7 +22,9 @@ public class Card {
 		return name + ", "+ type;
 	}
 	
-
+	public void printCard(Guess g) {
+		System.out.println(g.toString()); 
+	}
 	
 }
 

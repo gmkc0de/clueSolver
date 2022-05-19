@@ -17,9 +17,10 @@ public class App {
 		//TODO: Improve ask for hand so that a person can input card name, 
 		//and the clueSolver will know the card type (saves user typing card type)
 		game.askUserForHand();
-		
 		while(true) {
-			game.getGuessFromUser();
+			
+			Guess g = game.getGuessFromUser();
+			System.out.println(g.toString());
 		}
 		//1)
 		//Ask user the size of their hand
