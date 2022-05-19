@@ -7,6 +7,7 @@ public class Guess {
 	Player disprovePerson;
 	String madeBy;
 	Card disproveCard;
+	//TOD: madeby should be a player object
 	
 	public Guess(String madeBy, String sus, String r, String w, Player disP, Card disC ) {
 		suspect = sus;
