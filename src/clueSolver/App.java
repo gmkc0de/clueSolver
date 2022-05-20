@@ -10,7 +10,7 @@ public class App {
 	public static void main(String[] args) throws Exception {
 		
 		//Game game = new Game();
-		Game game = createTestGame(getAllCards());
+		Game game = Game.createTestGame();
 		game.printAllCards();
 		//game.addPlayers();
 		game.printPlayers();

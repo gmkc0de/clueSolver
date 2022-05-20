@@ -43,7 +43,7 @@ public class Game {
 		}
 	}
 
-	public static Game createTestGame(Card[] allC) {
+	public static Game createTestGame() {
 		Game game = new Game();
 		Player g = new Player("g");
 		Player h = new Player("h");
@@ -52,7 +52,7 @@ public class Game {
 		game.addPlayer(h);
 		game.addPlayer(j);
 		ArrayList<Card> cardList = new ArrayList<Card>();
-		for(Card c: allC) {
+		for(Card c: game.allCards) {
 			cardList.add(c);
 		}
 		for(int i = 0; i < 3; i++) {
@@ -60,7 +60,7 @@ public class Game {
 			g.getHandList().add(cardList.get(num));
 			cardList.remove(num);
 		}
-		
+		System.out.println("test game created");
 		return game;
 	}
 
