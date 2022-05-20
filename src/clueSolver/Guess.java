@@ -5,24 +5,24 @@ public class Guess {
 	String room;
 	String weapon;
 	Player disprovePerson;
-	String madeBy;
+	Player madeBy;
 	Card disproveCard;
 	//TOD: madeby should be a player object
 	
-	public Guess(String madeBy, String sus, String r, String w, Player disP, Card disC ) {
+	public Guess(Player madeBy, String sus, String r, String w, Player disP, Card disC ) {
 		suspect = sus;
 		room = r;
 		weapon = w;
 		disprovePerson = disP;
 		disproveCard = disC;
-		this.madeBy = madeBy;
+		madeBy = madeBy;
 	}
-	public Guess(String madeBy, String sus, String r, String w, Player disP) {
+	public Guess(Player madeBy, String sus, String r, String w, Player disP) {
 		suspect = sus;
 		room = r;
 		weapon = w;
 		disprovePerson = disP;
-		this.madeBy = madeBy;
+		madeBy = madeBy;
 	}
 
 	public String getSuspect() {
