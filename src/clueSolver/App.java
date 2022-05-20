@@ -21,6 +21,7 @@ public class App {
 		while(true) {
 			
 			Guess g = game.getGuessFromUser();
+			game.addGuess(g);
 			System.out.println(g.toString());
 		}
 		//1)

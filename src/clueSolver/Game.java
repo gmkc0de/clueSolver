@@ -9,6 +9,7 @@ public class Game {
 	private ArrayList<Player> players;
 	private Card[] secretCards;
 	private	Card[] allCards;
+	private ArrayList<Guess> guessList;
 	
 	//allGuesses
 	
@@ -209,6 +210,23 @@ public class Game {
 	}
 	
 	public Guess getGuessFromUser() throws Exception{
+		Player guessPlayer = getMatchingPLayer(App.getStringInputFromUser("record a guesss who is making this guess?"));
+		String sus = App.getStringInputFromUser("please input suspect");
+		String weapon = App.getStringInputFromUser("please input weapon");
+		String room = App.getStringInputFromUser("please input room");
+		String disPlayer = App.getStringInputFromUser("who disproved the guess?");
+		if (guessPlayer.equals(players.get(0))) {
+			// my guess
+			String disCardName = App.getStringInputFromUser("what was the disproving cards name?");
+			Card thisCard = getMatchingCard(disCardName);
+			if(isValidGuess(sus, weapon, room) && getMatchingPLayer(disPlayer) != null) {
+				
+				return new Guess(guessPlayer, sus, room, weapon, getMatchingPLayer(disPlayer), thisCard);
+			}
+		}else {
+			//not my guess
+			return new Guess(guessPlayer, sus, room, weapon, getMatchingPLayer(disPlayer), null);
+		}
 		
 		//ask user to input guess
 		//if its our guess, also ask for card shown
@@ -260,5 +278,10 @@ public class Game {
 			return true;
 		}
 		return false;
+	}
+
+	public void addGuess(Guess g) {
+		guessList.add(g);
+		
 	}
 }
