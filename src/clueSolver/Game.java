@@ -3,7 +3,7 @@ package clueSolver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+//TODO: make an aoutomaticGuesser method.
 public class Game {
 
 	private ArrayList<Player> players;
@@ -17,6 +17,7 @@ public class Game {
 	public Game() {
 		players = new ArrayList<Player>();
 		secretCards = new Card[3];
+		guessList = new ArrayList<Guess>();
 		allCards = new Card[21];
 		allCards[0] = new Card("ballroom", "room");
 		allCards[1] = new Card("conservatory", "room");
@@ -155,7 +156,7 @@ public class Game {
 	public Guess oldGetGuessFromUser() throws Exception {
 		
 		// TODO: handle invalid input so that players can reenter their data
-		//TODO: condense questions so player always enters a card and a type at the same time
+		
 		Player guessPlayer = getMatchingPLayer(App.getStringInputFromUser("record a guesss who is making this guess?"));
 		String sus = App.getStringInputFromUser("please input suspect");
 		String weapon = App.getStringInputFromUser("please input weapon");
@@ -283,5 +284,14 @@ public class Game {
 	public void addGuess(Guess g) {
 		guessList.add(g);
 		
+	}
+	public ArrayList<Guess>  findPLayerGuesses(Player p){
+		ArrayList<Guess> playerList = new ArrayList<Guess>();
+		for(Guess g: guessList) {
+			if(g.getGuesser().getName().equals(p.getName())) {
+				playerList.add(g);
+			}
+		}
+		return playerList;
 	}
 }

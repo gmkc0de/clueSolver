@@ -23,6 +23,7 @@ public class App {
 			Guess g = game.getGuessFromUser();
 			game.addGuess(g);
 			System.out.println(g.toString());
+			game.findPLayerGuesses(game.getPlayers().get(0));
 		}
 		//1)
 		//Ask user the size of their hand
