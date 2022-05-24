@@ -18,12 +18,18 @@ public class App {
 		//and the clueSolver will know the card type (saves user typing card type)
 		//hi dad
 		//game.askUserForHand();
+		int count = 0;
 		while(true) {
 			
 			Guess g = game.getGuessFromUser();
 			game.addGuess(g);
 			System.out.println(g.toString());
 			game.findPLayerGuesses(game.getPlayers().get(0));
+			count ++;
+			if(count > 1) {
+				game.findMyClues();
+			}
+			
 		}
 		//1)
 		//Ask user the size of their hand
