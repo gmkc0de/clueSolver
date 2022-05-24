@@ -9,19 +9,21 @@ public class App {
 //TODO: All get input methods should deal with incorrect input and allow player to try agian instead of requiroing the code to restart
 	public static void main(String[] args) throws Exception {
 		
-		Game game = new Game();
-
+		//Game game = new Game();
+		Game game = Game.createTestGame();
 		game.printAllCards();
-		game.addPlayers();
+		//game.addPlayers();
 		game.printPlayers();
 		//TODO: Improve ask for hand so that a person can input card name, 
 		//and the clueSolver will know the card type (saves user typing card type)
 		//hi dad
-		game.askUserForHand();
+		//game.askUserForHand();
 		while(true) {
 			
 			Guess g = game.getGuessFromUser();
+			game.addGuess(g);
 			System.out.println(g.toString());
+			game.findPLayerGuesses(game.getPlayers().get(0));
 		}
 		//1)
 		//Ask user the size of their hand
@@ -78,7 +80,7 @@ public class App {
 	}
 	
 
-	public static void dealCards(ArrayList<Player> players, List<Card> c, Card[] s) {
+	public void dealCards(ArrayList<Player> players, List<Card> c, Card[] s) {
 		// deal the three secret cards 
 		String whatType = "suspect";
 		String nextType = "weapon";
