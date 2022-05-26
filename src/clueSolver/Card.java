@@ -1,5 +1,7 @@
 package clueSolver;
 
+import java.util.ArrayList;
+
 public class Card {
 	String type;
 	String name;
@@ -24,6 +26,15 @@ public class Card {
 	
 	public void printCard(Guess g) {
 		System.out.println(g.toString()); 
+	}
+
+	public boolean isOnList(ArrayList<Card> list) {
+		for(Card v: list) {
+			if(v.getName().equals(this.getName())) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 }

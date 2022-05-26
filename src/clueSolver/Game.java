@@ -34,7 +34,7 @@ public class Game {
 		allCards[12] = new Card("wrench", "weapon");
 		allCards[13] = new Card("knife", "weapon");
 		allCards[14] = new Card("candlestick", "weapon");
-		allCards[15] = new Card("mustard", "weapon");
+		allCards[15] = new Card("mustard", "suspect");
 		allCards[16] = new Card("peacock", "suspect");
 		allCards[17] = new Card("scarlet", "suspect");
 		allCards[18] = new Card("plum", "suspect");
@@ -295,42 +295,43 @@ public class Game {
 	}
 
 	public void autoGuess(int k) {
-		for (int i = 0; 1 < k; i++) {
-			Guess randomGuess = generateRandomGuess();
-			guessList.add(randomGuess);
+		for (int i = 0; i < k; i++) {
+			guessList.add(generateRandomGuess());
 		}
 
 	}
 
+	
+
 	private Guess generateRandomGuess() {
+		//TODO actually only generates one guess
 		ArrayList<Card> suspects = new ArrayList<Card>();
+		for(int i = 15; i<= 20; i++) {
+			suspects.add(allCards[i]);
+		}
 		ArrayList<Card> weapons = new ArrayList<Card>();
+		for(int j = 9; j<= 14; j++) {
+			weapons.add(allCards[j]);
+		}
 		ArrayList<Card> rooms = new ArrayList<Card>();
-		for (Card c : allCards) {
-			// create list of suspects
-			if (c.getType().equals("suspect")) {
-				suspects.add(c);
-			} else if (c.getType().equals("weapon")) {
-				weapons.add(c);
-			} else {
-				rooms.add(c);
-			}
-			
+		for(int k = 0; k< 9; k++) {
+			rooms.add(allCards[k]);
 		}
 		//calc all randoms
-		String s = suspects.get((int)Math.random() * suspects.size()).getName();
-		String w = weapons.get((int)Math.random() * weapons.size()).getName();
-		String r = rooms.get((int)Math.random() * rooms.size()).getName(); 
-		Player gueser = players.get((int)Math.random() * players.size());
+		String s = suspects.get((int)(Math.random() * suspects.size())).getName();
+		String w = weapons.get((int)(Math.random() * weapons.size())).getName();
+		String r = rooms.get((int)(Math.random() * rooms.size())).getName(); 
+		Player guesser = players.get((int)(Math.random() * players.size()));
+		//TODO fix so it picks random people instead of just player 0
 		double disprover = Math.random() * players.size();
 		double discard = Math.random() * allCards.length;
-		if(gueser.getName().equals(players.get(0).getName())) {
+		if(guesser.getName().equals(players.get(0).getName())) {
 			//gueser is me
-			Guess rand = new Guess(gueser,  s,  r,  w, players.get((int)disprover), allCards[(int)discard]);
+			Guess rand = new Guess(guesser,  s,  r,  w, players.get((int)disprover), allCards[(int)discard]);
 			return rand;
 		}else {
 			//guesser not me
-			Guess rand = new Guess(gueser,  s,  r,  w, players.get((int)disprover), null);
+			Guess rand = new Guess(guesser,  s,  r,  w, players.get((int)disprover), null);
 			return rand;
 		}
 
@@ -338,6 +339,7 @@ public class Game {
 
 	public ArrayList<Card> findMyClues() {
 		ArrayList<Card> myClues = new ArrayList<Card>();
+		System.out.println("my clues:");
 		for (Card v : players.get(0).getHandList()) {
 			myClues.add(v);
 			System.out.println(v.getName());
@@ -345,10 +347,35 @@ public class Game {
 		for (Guess k : guessList) {
 			// select our guesses
 			if (k.getGuesser().getName().equals(players.get(0).getName())) {
-				myClues.add(k.getDisprovingCard());
+				if(!k.getDisprovingCard().isOnList(myClues)) {
+					myClues.add(k.getDisprovingCard());
+				}
 				System.out.println(k.getDisprovingCard().getName());
 			}
 		}
 		return myClues;
+	}
+	public ArrayList<Card>findUnknownSuspects(){
+		//TODO 
+		ArrayList<Card> myClues = findMyClues();
+		ArrayList<Card> unknown = new ArrayList<Card>();
+		for(Card c: myClues) {
+			for( int i = 15; i <= 20; i++ ) {
+				if(c.getName().equals(allCards[i].getName())) {
+					
+				}
+			}
+		}
+		return null;
+	}
+	public ArrayList<Card>findUnknownRooms(){
+		return null;
+	}
+	public ArrayList<Card>findUnknownWeapons(){
+		return null;
+	}
+	
+	public ArrayList<Guess> getGuessList() {
+		return guessList;
 	}
 }

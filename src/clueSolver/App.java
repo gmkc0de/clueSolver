@@ -19,11 +19,14 @@ public class App {
 		//hi dad
 		//game.askUserForHand();
 		int count = 0;
-		while(true) {
+		while(count < 5) {
 			
-			Guess g = game.getGuessFromUser();
-			game.addGuess(g);
-			System.out.println(g.toString());
+			//Guess g = game.getGuessFromUser();
+			//game.addGuess(g);
+			//System.out.println(g.toString());
+			game.autoGuess(1);
+			System.out.println(game.getGuessList().get(game.getGuessList().size() -1));
+			
 			game.findPLayerGuesses(game.getPlayers().get(0));
 			count ++;
 			if(count > 1) {
