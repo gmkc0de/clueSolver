@@ -48,5 +48,8 @@ public class Guess {
 	public Player getGuesser() {
 		return madeBy;
 	}
+	public Card getDisprovingCard() {
+		return disproveCard;
+	}
 	
 }
