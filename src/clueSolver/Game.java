@@ -377,11 +377,47 @@ public class Game {
 	}
 
 	public ArrayList<Card> findUnknownRooms() {
-		return null;
+		ArrayList<Card> myClues = findMyClues();
+		ArrayList<Card> unknown = new ArrayList<Card>();
+		for (int i = 0; i <= 8; i++) {
+			unknown.add(allCards[i]);
+		}
+		for (Card c : myClues) {
+			for (int i = 0; i < unknown.size(); i++) {
+				if (c.getName().equals(unknown.get(i).getName())) {
+					unknown.remove(i);
+					i--;
+
+				}
+
+			}
+
+		}
+
+		return unknown;
+
 	}
 
 	public ArrayList<Card> findUnknownWeapons() {
-		return null;
+		ArrayList<Card> myClues = findMyClues();
+		ArrayList<Card> unknown = new ArrayList<Card>();
+		for (int i = 10; i <= 14; i++) {
+			unknown.add(allCards[i]);
+		}
+		for (Card c : myClues) {
+			for (int i = 0; i < unknown.size(); i++) {
+				if (c.getName().equals(unknown.get(i).getName())) {
+					unknown.remove(i);
+					i--;
+
+				}
+
+			}
+
+		}
+
+		return unknown;
+
 	}
 
 	public ArrayList<Guess> getGuessList() {
