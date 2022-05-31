@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//TODO: make an aoutomaticGuesser method.
 public class Game {
 
 	private ArrayList<Player> players;
@@ -325,7 +324,7 @@ public class Game {
 	}
 
 	public ArrayList<Card> findMyClues() {
-		// TODO still double prints some clues
+		// TODO fix bug that allows some clues to be double printed
 		ArrayList<Card> myClues = new ArrayList<Card>();
 		for (Card v : players.get(0).getHandList()) {
 			myClues.add(v);

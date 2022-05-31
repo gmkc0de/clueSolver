@@ -46,6 +46,9 @@ public class Guess {
 		s += ", weapon: " + weapon;
 		s += ", room: " + room;
 		s += ", disproved by: " + disprovePerson.getName();
+		if(disproveCard != null) {
+			s+= ", disproving card: " + disproveCard.getName();
+		}
 		return s;
 	}
 	public Player getGuesser() {

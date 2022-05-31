@@ -13,8 +13,7 @@ public class App {
 		Game game = Game.createTestGame();
 		//game.printAllCards();
 		//game.addPlayers();
-		game.printPlayers();
-		//TODO: Improve ask for hand so that a person can input card name, 
+		game.printPlayers(); 
 		//and the clueSolver will know the card type (saves user typing card type)
 		//hi dad
 		//game.askUserForHand();
