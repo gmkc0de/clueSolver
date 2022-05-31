@@ -299,13 +299,15 @@ public class Game {
 		guessCards.add(w);
 		String r = rooms.get((int) (Math.random() * rooms.size())).getName();
 		guessCards.add(r);
+		// any player
 		Player guesser = players.get((int) (Math.random() * players.size()));
+		// any player but the guesser
 		Player disprover = anyPlayerButThis(guesser);
-		// discard is chosen from one of the cards guessed
-		Card disCard = allCards[(int) (Math.random() * guessCards.size())];
+		//  discard is chosen from one of the cards guessed
+		String disCard = guessCards.get((int) (Math.random() * guessCards.size()));
 		if (guesser.getName().equals(players.get(0).getName())) {
 			// if guesser is me
-			Guess rand = new Guess(guesser, s, r, w, disprover, disCard);
+			Guess rand = new Guess(guesser, s, r, w, disprover, getMatchingCard(disCard));
 			return rand;
 		} else {
 			// if guesser not me

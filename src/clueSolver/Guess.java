@@ -38,7 +38,6 @@ public class Guess {
 		return weapon;
 	}
 	public String toString() {
-		//TODO: second toString should also convert disproving card when appropriate
 
 		String s = "";
 		s += "the guess was made by: " + madeBy.getName();
