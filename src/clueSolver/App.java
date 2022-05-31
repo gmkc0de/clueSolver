@@ -30,7 +30,6 @@ public class App {
 			count ++;
 			if(count > 0) {
 				System.out.println("my clues:");
-				//TODO clues should not print before unknowns
 				ArrayList<Card>myClues = game.findMyClues();
 				for(Card c: myClues) {
 					System.out.println(c.getName());

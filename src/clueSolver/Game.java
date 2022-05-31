@@ -337,8 +337,7 @@ public class Game {
 				if (!k.getDisprovingCard().isOnList(myClues)) {
 					myClues.add(k.getDisprovingCard());
 				}
-				System.out.println(k.getDisprovingCard().getName());
-			}
+							}
 		}
 		return myClues;
 	}
