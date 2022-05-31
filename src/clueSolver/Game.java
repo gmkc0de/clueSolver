@@ -65,38 +65,12 @@ public class Game {
 			g.getHandList().add(cardList.get(num));
 			cardList.remove(num);
 		}
-		System.out.println("test game created");
+		System.out.println(">>test game created<<");
 		return game;
 	}
 
-	public void addPlayer(Player p) {
-		getPlayers().add(p);
+	
 
-	}
-
-	public ArrayList<Player> getPlayers() {
-		return players;
-	}
-
-	public void setPlayers(ArrayList<Player> players) {
-		this.players = players;
-	}
-
-	public Card[] getSecretCards() {
-		return secretCards;
-	}
-
-	public void setSecretCards(Card[] secretCards) {
-		this.secretCards = secretCards;
-	}
-
-	public Card[] getAllCards() {
-		return allCards;
-	}
-
-	public void setAllCards(Card[] allCards) {
-		this.allCards = allCards;
-	}
 
 	public void addPlayers() throws Exception {
 		int numPlayers = App.getIntFromUser("How many players?");
@@ -116,7 +90,7 @@ public class Game {
 	}
 
 	public void printPlayers() {
-		System.out.println("player list");
+		System.out.println("player list:");
 		for (int i = 0; i < players.size(); i++) {
 			System.out.print(players.get(i).getName() + ", ");
 		}
@@ -302,45 +276,59 @@ public class Game {
 	}
 
 	private Guess generateRandomGuess() {
-		// TODO actually only generates one guess
 		ArrayList<Card> suspects = new ArrayList<Card>();
-		for (int i = 15; i <= 20; i++) {
-			suspects.add(allCards[i]);
-		}
 		ArrayList<Card> weapons = new ArrayList<Card>();
-		for (int j = 9; j <= 14; j++) {
-			weapons.add(allCards[j]);
-		}
 		ArrayList<Card> rooms = new ArrayList<Card>();
-		for (int k = 0; k < 9; k++) {
-			rooms.add(allCards[k]);
+		ArrayList<String> guessCards = new ArrayList<String>();
+		for (Card c : allCards) {
+			// fill suspects
+			if (c.getType().equals("suspect")) {
+				suspects.add(c);
+				// fill weapons
+			} else if (c.getType().equals("weapon")) {
+				weapons.add(c);
+			} else {
+				// fill rooms
+				rooms.add(c);
+			}
+
 		}
 		// calc all randoms
 		String s = suspects.get((int) (Math.random() * suspects.size())).getName();
+		guessCards.add(s);
 		String w = weapons.get((int) (Math.random() * weapons.size())).getName();
+		guessCards.add(w);
 		String r = rooms.get((int) (Math.random() * rooms.size())).getName();
+		guessCards.add(r);
 		Player guesser = players.get((int) (Math.random() * players.size()));
-		// TODO fix so it picks random people instead of just player 0
-		double disprover = Math.random() * players.size();
-		double discard = Math.random() * allCards.length;
+		Player disprover = anyPlayerButThis(guesser);
+		// discard is chosen from one of the cards guessed
+		Card disCard = allCards[(int) (Math.random() * guessCards.size())];
 		if (guesser.getName().equals(players.get(0).getName())) {
-			// gueser is me
-			Guess rand = new Guess(guesser, s, r, w, players.get((int) disprover), allCards[(int) discard]);
+			// if guesser is me
+			Guess rand = new Guess(guesser, s, r, w, disprover, disCard);
 			return rand;
 		} else {
-			// guesser not me
-			Guess rand = new Guess(guesser, s, r, w, players.get((int) disprover), null);
+			// if guesser not me
+			Guess rand = new Guess(guesser, s, r, w, disprover, null);
 			return rand;
 		}
 
 	}
 
+	private Player anyPlayerButThis(Player guesser) {
+		Player p = players.get((int) (Math.random() * players.size()));
+		if (p.getName().equals(guesser.getName())) {
+			return anyPlayerButThis(guesser);
+		}
+		return p;
+	}
+
 	public ArrayList<Card> findMyClues() {
+		// TODO still double prints some clues
 		ArrayList<Card> myClues = new ArrayList<Card>();
-		System.out.println("my clues:");
 		for (Card v : players.get(0).getHandList()) {
 			myClues.add(v);
-			System.out.println(v.getName());
 		}
 		for (Guess k : guessList) {
 			// select our guesses
@@ -355,11 +343,11 @@ public class Game {
 	}
 
 	public ArrayList<Card> findUnknownSuspects() {
-		// TODO
 		ArrayList<Card> myClues = findMyClues();
 		ArrayList<Card> unknown = new ArrayList<Card>();
-		for (int i = 15; i <= 20; i++) {
-			unknown.add(allCards[i]);
+		ArrayList<Card> allSus = getAllSuspects();
+		for (int i = 0; i < allSus.size(); i++) {
+			unknown.add(allSus.get(i));
 		}
 		for (Card c : myClues) {
 			for (int i = 0; i < unknown.size(); i++) {
@@ -379,8 +367,9 @@ public class Game {
 	public ArrayList<Card> findUnknownRooms() {
 		ArrayList<Card> myClues = findMyClues();
 		ArrayList<Card> unknown = new ArrayList<Card>();
-		for (int i = 0; i <= 8; i++) {
-			unknown.add(allCards[i]);
+		ArrayList<Card> allRooms = getAllRooms();
+		for (int i = 0; i < allRooms.size(); i++) {
+			unknown.add(allRooms.get(i));
 		}
 		for (Card c : myClues) {
 			for (int i = 0; i < unknown.size(); i++) {
@@ -401,8 +390,9 @@ public class Game {
 	public ArrayList<Card> findUnknownWeapons() {
 		ArrayList<Card> myClues = findMyClues();
 		ArrayList<Card> unknown = new ArrayList<Card>();
-		for (int i = 10; i <= 14; i++) {
-			unknown.add(allCards[i]);
+		ArrayList<Card> allWeapon = getAllWeapons();
+		for (int i = 0; i < allWeapon.size(); i++) {
+			unknown.add(allWeapon.get(i));
 		}
 		for (Card c : myClues) {
 			for (int i = 0; i < unknown.size(); i++) {
@@ -423,4 +413,62 @@ public class Game {
 	public ArrayList<Guess> getGuessList() {
 		return guessList;
 	}
+
+	private ArrayList<Card> getAllSuspects() {
+		ArrayList<Card> sus = new ArrayList<Card>();
+		for (Card c : allCards) {
+			if (c.getType().equals("suspect")) {
+				sus.add(c);
+			}
+		}
+		return sus;
+	}
+
+	private ArrayList<Card> getAllWeapons() {
+		ArrayList<Card> w = new ArrayList<Card>();
+		for (Card c : allCards) {
+			if (c.getType().equals("weapon")) {
+				w.add(c);
+			}
+		}
+		return w;
+	}
+
+	private ArrayList<Card> getAllRooms() {
+		ArrayList<Card> r = new ArrayList<Card>();
+		for (Card c : allCards) {
+			if (c.getType().equals("room")) {
+				r.add(c);
+			}
+		}
+		return r;
+	}
+	public Card[] getSecretCards() {
+		return secretCards;
+	}
+
+	public void setSecretCards(Card[] secretCards) {
+		this.secretCards = secretCards;
+	}
+
+	public Card[] getAllCards() {
+		return allCards;
+	}
+
+	public void setAllCards(Card[] allCards) {
+		this.allCards = allCards;
+	}
+	public void addPlayer(Player p) {
+		getPlayers().add(p);
+
+	}
+
+	public ArrayList<Player> getPlayers() {
+		return players;
+	}
+
+	public void setPlayers(ArrayList<Player> players) {
+		this.players = players;
+	}
+
 }

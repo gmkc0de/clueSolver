@@ -1,6 +1,7 @@
 package clueSolver;
 
 public class Guess {
+	// TODO sus room and weapon should be cards
 	String suspect;
 	String room;
 	String weapon;
@@ -37,6 +38,8 @@ public class Guess {
 		return weapon;
 	}
 	public String toString() {
+		//TODO: second toString should also convert disproving card when appropriate
+
 		String s = "";
 		s += "the guess was made by: " + madeBy.getName();
 		s += ", suspect: " + suspect;

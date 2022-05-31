@@ -11,7 +11,7 @@ public class App {
 		
 		//Game game = new Game();
 		Game game = Game.createTestGame();
-		game.printAllCards();
+		//game.printAllCards();
 		//game.addPlayers();
 		game.printPlayers();
 		//TODO: Improve ask for hand so that a person can input card name, 
@@ -19,7 +19,7 @@ public class App {
 		//hi dad
 		//game.askUserForHand();
 		int count = 0;
-		while(count < 5) {
+		while(count < 3) {
 			
 			//Guess g = game.getGuessFromUser();
 			//game.addGuess(g);
@@ -29,11 +29,24 @@ public class App {
 			
 			game.findPLayerGuesses(game.getPlayers().get(0));
 			count ++;
-			if(count > 1) {
-				game.findMyClues();
+			if(count > 0) {
+				System.out.println("my clues:");
+				//TODO clues should not print before unknowns
+				ArrayList<Card>myClues = game.findMyClues();
+				for(Card c: myClues) {
+					System.out.println(c.getName());
+				}
+				System.out.println(">>----------<<");
 			}
+			System.out.println("unknow sus: ");
+			ArrayList<Card> test = game.findUnknownSuspects();
+			for(Card c: test) {
+				System.out.println(c.getName());
+			}
+			System.out.println(">>----------<<");
 			
 		}
+		
 		//1)
 		//Ask user the size of their hand
 		
