@@ -127,9 +127,6 @@ public class Game {
 	// if not my guess, record the guess and who disproved in the games guess list
 
 	public Guess oldGetGuessFromUser() throws Exception {
-
-		// TODO: handle invalid input so that players can reenter their data
-
 		Player guessPlayer = getMatchingPLayer(App.getStringInputFromUser("record a guesss who is making this guess?"));
 		String sus = App.getStringInputFromUser("please input suspect");
 		String weapon = App.getStringInputFromUser("please input weapon");
@@ -182,15 +179,15 @@ public class Game {
 
 	public Guess getGuessFromUser() throws Exception {
 		Player guessPlayer = getMatchingPLayer(App.getStringInputFromUser("record a guesss who is making this guess?"));
-		String sus = App.getStringInputFromUser("please input suspect");
-		String weapon = App.getStringInputFromUser("please input weapon");
-		String room = App.getStringInputFromUser("please input room");
+		Card sus = getMatchingCard(App.getStringInputFromUser("please input suspect"));
+		Card weapon =  getMatchingCard(App.getStringInputFromUser("please input weapon"));
+		Card room =  getMatchingCard(App.getStringInputFromUser("please input room"));
 		String disPlayer = App.getStringInputFromUser("who disproved the guess?");
 		if (guessPlayer.equals(players.get(0))) {
 			// my guess
 			String disCardName = App.getStringInputFromUser("what was the disproving cards name?");
 			Card thisCard = getMatchingCard(disCardName);
-			if (isValidGuess(sus, weapon, room) && getMatchingPLayer(disPlayer) != null) {
+			if (isValidGuess(sus.getName(), weapon.getName(), room.getName()) && getMatchingPLayer(disPlayer) != null) {
 
 				return new Guess(guessPlayer, sus, room, weapon, getMatchingPLayer(disPlayer), thisCard);
 			}
@@ -307,11 +304,11 @@ public class Game {
 		String disCard = guessCards.get((int) (Math.random() * guessCards.size()));
 		if (guesser.getName().equals(players.get(0).getName())) {
 			// if guesser is me
-			Guess rand = new Guess(guesser, s, r, w, disprover, getMatchingCard(disCard));
+			Guess rand = new Guess(guesser, getMatchingCard(s), getMatchingCard(r), getMatchingCard(w), disprover, getMatchingCard(disCard));
 			return rand;
 		} else {
 			// if guesser not me
-			Guess rand = new Guess(guesser, s, r, w, disprover, null);
+			Guess rand = new Guess(guesser, getMatchingCard(s), getMatchingCard(r), getMatchingCard(w), disprover, null);
 			return rand;
 		}
 
