@@ -1,7 +1,6 @@
 package clueSolver;
 
 public class Guess {
-	// TODO sus room and weapon should be cards
 	Card suspect;
 	Card room;
 	Card weapon;

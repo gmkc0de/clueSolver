@@ -145,11 +145,11 @@ public class Game {
 
 					String disCardName = App.getStringInputFromUser("what was the disproving cards name?");
 					Card thisCard = getMatchingCard(disCardName);
-					Guess g = new Guess(guessPlayer, sus, room, weapon, disPlayer, thisCard);
+					Guess g = new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room), getMatchingCard(weapon), disPlayer, thisCard);
 					if (isRealCard(disCardName)) {
 						players.get(0).getNotePad().add(g);
 						disPlayer.getHandList().add(thisCard);
-						Guess n = new Guess(guessPlayer, sus, room, weapon, disPlayer, thisCard);
+						Guess n = new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room), getMatchingCard(weapon), disPlayer, thisCard);
 						players.get(0).getGuessList().add(n);
 						System.out.println(">succesfuly added<");
 					} else {
@@ -161,7 +161,7 @@ public class Game {
 					// i am not the guesser
 					if (guessPlayer != null && getMatchingSuspect(sus) && isValidWeapon(weapon)) {
 						System.out.println(">succesfuly added<");
-						return new Guess(guessPlayer, sus, room, weapon, disPlayer);
+						return new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room), getMatchingCard(weapon), disPlayer);
 					} else {
 						System.out.println("invalid guess - cannot be entered");
 					}
@@ -323,7 +323,6 @@ public class Game {
 	}
 
 	public ArrayList<Card> findMyClues() {
-		// TODO fix bug that allows some clues to be double printed
 		ArrayList<Card> myClues = new ArrayList<Card>();
 		for (Card v : players.get(0).getHandList()) {
 			myClues.add(v);

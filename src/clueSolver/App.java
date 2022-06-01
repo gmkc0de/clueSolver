@@ -18,7 +18,7 @@ public class App {
 		//hi dad
 		//game.askUserForHand();
 		int count = 0;
-		while(count < 3) {
+		while(count < 5) {
 			
 			//Guess g = game.getGuessFromUser();
 			//game.addGuess(g);
