@@ -11,6 +11,7 @@ public class App {
 		
 		//Game game = new Game();
 		Game game = Game.createTestGame();
+		game.dealCards();
 		//game.printAllCards();
 		//game.addPlayers();
 		game.printPlayers(); 
@@ -100,31 +101,5 @@ public class App {
 	}
 	
 
-	public void dealCards(ArrayList<Player> players, List<Card> c, Card[] s) {
-		// deal the three secret cards 
-		String whatType = "suspect";
-		String nextType = "weapon";
-		ArrayList<Card> cards = new ArrayList<Card>(c);
-		for(int i = 0; i < 3; i++) {
-			if(cards.size()!= 0){
-				int num = (int)Math.random() * cards.size();
-				if(cards.get(num).getType() == whatType) {
-					s[i] = cards.get(num);
-					cards.remove(num);
-					whatType = nextType;
-					nextType = "room";
-				}
-			}
-		}
-		// deal to players
-		while(cards.size() != 0) {
-			for(Player p: players) {
-				if(cards.size()!= 0){
-				int num = (int)Math.random() * cards.size();
-				p.getHandList().add(cards.get(num));
-				cards.remove(num);
-				}
-			}
-		}	
-	}
+	
 }

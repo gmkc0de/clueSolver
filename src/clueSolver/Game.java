@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Game {
-	// TODO:use addAll() method of list to simplify your code
+	
 	// TODO:review code in App.dealCards()
 	private ArrayList<Player> players;
 	private Card[] secretCards;
@@ -67,6 +67,29 @@ public class Game {
 		}
 		System.out.println(">>test game created<<");
 		return game;
+	}
+	public void dealCards() {
+		// deal the three secret cards 
+		String whatType = "suspect";
+		String nextType = "weapon";
+		ArrayList<Card> availableCards = addAll(allCards);
+		Card[] secretCards = new Card[3];	
+		for(int i = 0; i < 3; i++) {
+			if(availableCards.size()!= 0){
+				secretCards[i] = getAllSuspects().get((int)Math.random() * getAllSuspects().size());
+				availableCards.remove(getMatchingCardIndex())
+			}
+		}
+		// deal to players
+		while(availableCards.size() != 0) {
+			for(Player p: players) {
+				if(availableCards.size()!= 0){
+				int num = (int)Math.random() * availableCards.size();
+				p.getHandList().add(availableCards.get(num));
+				availableCards.remove(num);
+				}
+			}
+		}	
 	}
 
 	public void addPlayers() throws Exception {
@@ -417,6 +440,13 @@ public class Game {
 		}
 		return added;
 	}
+	public ArrayList<Card> addAll(Card[] list) {
+		ArrayList<Card> added = new ArrayList<Card>();
+		for (int i = 0; i < list.length; i++) {
+			added.add(list[i]);
+		}
+		return added;
+	}
 
 	public ArrayList<Guess> getGuessList() {
 		return guessList;
@@ -441,6 +471,7 @@ public class Game {
 		}
 		return w;
 	}
+	
 
 	private ArrayList<Card> getAllRooms() {
 		ArrayList<Card> r = new ArrayList<Card>();
