@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class App {
-//TODO: All get input methods should deal with incorrect input and allow player to try agian instead of requiroing the code to restart
+//TODO: >long term<All get input methods should deal with incorrect input and allow player to try agian instead of requiroing the code to restart
 	public static void main(String[] args) throws Exception {
 		
 		//Game game = new Game();

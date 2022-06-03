@@ -64,58 +64,40 @@ public class Game {
 		System.out.println(">>test game created<<");
 		return game;
 	}
-	public void dealCards(ArrayList<Player> players,  Card[] s) {
+	public void dealCards() {
 		// deal the three secret cards 
 		String whatType = "suspect";
 		String nextType = "weapon";
-		ArrayList<Card> cards = addAll(allCards);
+		ArrayList<Card> availibleCards = addAll(allCards);
 		
 		for(int i = 0; i < 3; i++) {
-			if(cards.size()!= 0){
-				int num = (int)Math.random() * cards.size();
-				if(cards.get(num).getType() == whatType) {
-					s[i] = cards.get(num);
-					cards.remove(num);
-					whatType = nextType;
-					nextType = "room";
-				}
+			if(availibleCards.size()!= 0){
+				ArrayList<Card> typeList = getAllAnyType(whatType);
+				int num = (int)Math.random() * typeList.size();
+				secretCards[i] = typeList.get(num);
+				//removes dealt card from available list
+				availibleCards.remove(getMatchingCard(typeList.get(num).getName()));
+				whatType = nextType;
+				nextType = "room";
+				
 			}
 		}
 		// deal to players
-		while(cards.size() != 0) {
+		while(availibleCards.size() != 0) {
 			for(Player p: players) {
-				if(cards.size()!= 0){
-				int num = (int)Math.random() * cards.size();
-				p.getHandList().add(cards.get(num));
-				cards.remove(num);
+				if(availibleCards.size()!= 0){
+				int num = (int)Math.random() * availibleCards.size();
+				p.getHandList().add(availibleCards.get(num));
+				availibleCards.remove(num);
 				}
 			}
 		}	
 	}
-//	public void dealCards() {
-//		// deal the three secret cards 
-//		String whatType = "suspect";
-//		String nextType = "weapon";
-//		ArrayList<Card> availableCards = addAll(allCards);
-//		Card[] secretCards = new Card[3];	
-//		for(int i = 0; i < 3; i++) {
-//			if(availableCards.size()!= 0){
-//				secretCards[i] = getAllSuspects().get((int)Math.random() * getAllSuspects().size());
-//				availableCards.remove(getMatchingCardIndex())
-//			}
-//		}
-//		// deal to players
-//		while(availableCards.size() != 0) {
-//			for(Player p: players) {
-//				if(availableCards.size()!= 0){
-//				int num = (int)Math.random() * availableCards.size();
-//				p.getHandList().add(availableCards.get(num));
-//				availableCards.remove(num);
-//				}
-//			}
-//		}	
-//	}
 	
+	
+
+
+
 
 	public void printAllCards() {
 		for (int i = 0; i < allCards.length; i++) {
@@ -495,6 +477,18 @@ public class Game {
 		}
 		return r;
 
+	}
+
+	private ArrayList<Card> getAllAnyType(String whatType) {
+		if(whatType.equals("suspect")) {
+			return getAllSuspects();
+		}else if(whatType.equals("room")) {
+			return getAllRooms();
+		}else if(whatType.equals("weapon")) {
+			return getAllWeapons();
+		}
+		System.out.println("getAllAnyType failed returned null");
+		return null;
 	}
 	private Card getMatchingCard(String disCardName) {
 		for (int i = 0; i < allCards.length; i++) {
