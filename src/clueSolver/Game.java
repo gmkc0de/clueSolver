@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//TODO: make an aoutomaticGuesser method.
 public class Game {
-
+	
+	// TODO:review code in App.dealCards()
 	private ArrayList<Player> players;
 	private Card[] secretCards;
 	private Card[] allCards;
@@ -42,11 +42,7 @@ public class Game {
 		allCards[20] = new Card("green", "suspect");
 	}
 
-	public void printAllCards() {
-		for (int i = 0; i < allCards.length; i++) {
-			System.out.println(allCards[i]);
-		}
-	}
+	
 
 	public static Game createTestGame() {
 		Game game = new Game();
@@ -65,72 +61,58 @@ public class Game {
 			g.getHandList().add(cardList.get(num));
 			cardList.remove(num);
 		}
-		System.out.println("test game created");
+		System.out.println(">>test game created<<");
 		return game;
 	}
-
-	public void addPlayer(Player p) {
-		getPlayers().add(p);
-
-	}
-
-	public ArrayList<Player> getPlayers() {
-		return players;
-	}
-
-	public void setPlayers(ArrayList<Player> players) {
-		this.players = players;
-	}
-
-	public Card[] getSecretCards() {
-		return secretCards;
-	}
-
-	public void setSecretCards(Card[] secretCards) {
-		this.secretCards = secretCards;
-	}
-
-	public Card[] getAllCards() {
-		return allCards;
-	}
-
-	public void setAllCards(Card[] allCards) {
-		this.allCards = allCards;
-	}
-
-	public void addPlayers() throws Exception {
-		int numPlayers = App.getIntFromUser("How many players?");
-		String name = App.getStringInputFromUser("what is your name?");
-		System.out.println("hello " + name);
-		Player me = new Player(name);
-		players.add(me);
-
-		// make list of other players
-		for (int i = 1; i < numPlayers; i++) {
-			String otherPlayer = App.getStringInputFromUser("what is other player " + i + "'s name?");
-			Player other = new Player(otherPlayer);
-			players.add(other);
-
+	public void dealCards() {
+		// deal the three secret cards 
+		String whatType = "suspect";
+		String nextType = "weapon";
+		ArrayList<Card> availibleCards = addAll(allCards);
+		
+		for(int i = 0; i < 3; i++) {
+			if(availibleCards.size()!= 0){
+				ArrayList<Card> typeList = getAllAnyType(whatType);
+				int num = (int)Math.random() * typeList.size();
+				secretCards[i] = typeList.get(num);
+				//removes dealt card from available list
+				availibleCards.remove(getMatchingCard(typeList.get(num).getName()));
+				whatType = nextType;
+				nextType = "room";
+				
+			}
 		}
-
+		// deal to players
+		while(availibleCards.size() != 0) {
+			for(Player p: players) {
+				if(availibleCards.size()!= 0){
+				int num = (int)Math.random() * availibleCards.size();
+				p.getHandList().add(availibleCards.get(num));
+				availibleCards.remove(num);
+				}
+			}
+		}	
 	}
+	
+	
 
+
+
+
+	public void printAllCards() {
+		for (int i = 0; i < allCards.length; i++) {
+			System.out.println(allCards[i]);
+		}
+	}
 	public void printPlayers() {
-		System.out.println("player list");
+		System.out.println("player list:");
 		for (int i = 0; i < players.size(); i++) {
 			System.out.print(players.get(i).getName() + ", ");
 		}
 		System.out.println();
 	}
 
-	public boolean isRealCard(String name) {
-		for (Card current : getAllCards()) {
-			if (current.getName().equals(name)) {
-				return true;
-			}
-		}
-		return false;
-	}
+	
 
 	public void askUserForHand() throws Exception {
 		int c = App.getIntFromUser("how many cards do you have in your hand?");
@@ -153,10 +135,263 @@ public class Game {
 	// if my guess, record the card i see with my guess
 	// if not my guess, record the guess and who disproved in the games guess list
 
+	
+
+	public boolean isRealCard(String name) {
+		for (Card current : getAllCards()) {
+			if (current.getName().equals(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isValidWeapon(String w) {
+		for (int i = 0; i < allCards.length; i++) {
+			if (w.equals(allCards[i].getName()) && allCards[i].getType().equals("weapon")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	
+
+	public boolean isValidGuess(String sus, String w, String room) {
+		if (isRealCard(sus) && isRealCard(w) && isRealCard(room)) {
+			return true;
+		}
+		return false;
+	}
+
+	
+
+	public void autoGuess(int k) {
+		for (int i = 0; i < k; i++) {
+			guessList.add(generateRandomGuess());
+		}
+
+	}
+	private Player anyPlayerButThis(Player guesser) {
+		Player p = players.get((int) (Math.random() * players.size()));
+		if (p.getName().equals(guesser.getName())) {
+			return anyPlayerButThis(guesser);
+		}
+		return p;
+	}
+	private Guess generateRandomGuess() {
+		ArrayList<Card> suspects = new ArrayList<Card>();
+		ArrayList<Card> weapons = new ArrayList<Card>();
+		ArrayList<Card> rooms = new ArrayList<Card>();
+		ArrayList<String> guessCards = new ArrayList<String>();
+		for (Card c : allCards) {
+			// fill suspects
+			if (c.getType().equals("suspect")) {
+				suspects.add(c);
+				// fill weapons
+			} else if (c.getType().equals("weapon")) {
+				weapons.add(c);
+			} else {
+				// fill rooms
+				rooms.add(c);
+			}
+
+		}
+		// calc all randoms
+		String s = suspects.get((int) (Math.random() * suspects.size())).getName();
+		guessCards.add(s);
+		String w = weapons.get((int) (Math.random() * weapons.size())).getName();
+		guessCards.add(w);
+		String r = rooms.get((int) (Math.random() * rooms.size())).getName();
+		guessCards.add(r);
+		// any player
+		Player guesser = players.get((int) (Math.random() * players.size()));
+		// any player but the guesser
+		Player disprover = anyPlayerButThis(guesser);
+		// discard is chosen from one of the cards guessed
+		String disCard = guessCards.get((int) (Math.random() * guessCards.size()));
+		if (guesser.getName().equals(players.get(0).getName())) {
+			// if guesser is me
+			Guess rand = new Guess(guesser, getMatchingCard(s), getMatchingCard(r), getMatchingCard(w), disprover,
+					getMatchingCard(disCard));
+			return rand;
+		} else {
+			// if guesser not me
+			Guess rand = new Guess(guesser, getMatchingCard(s), getMatchingCard(r), getMatchingCard(w), disprover,
+					null);
+			return rand;
+		}
+
+	}
+
+
+
+	public ArrayList<Card> findMyClues() {
+		// TODO:refactor findMyClues to use findPlayerGuesses()
+		ArrayList<Card> myClues = new ArrayList<Card>();
+		for (Card v : players.get(0).getHandList()) {
+			myClues.add(v);
+		}
+		for (Guess k : guessList) {
+			// select our guesses
+			if (k.getGuesser().getName().equals(players.get(0).getName())) {
+				if (!k.getDisprovingCard().isOnList(myClues)) {
+					myClues.add(k.getDisprovingCard());
+				}
+			}
+		}
+		return myClues;
+	}
+
+	public ArrayList<Card> findUnknownSuspects() {
+		ArrayList<Card> myClues = findMyClues();
+		ArrayList<Card> unknown = new ArrayList<Card>();
+		ArrayList<Card> allSus = getAllSuspects();
+		for (int i = 0; i < allSus.size(); i++) {
+			unknown = addAll(allSus);
+		}
+		for (Card c : myClues) {
+			for (int i = 0; i < unknown.size(); i++) {
+				if (c.getName().equals(unknown.get(i).getName())) {
+					unknown.remove(i);
+					i--;
+
+				}
+
+			}
+
+		}
+
+		return unknown;
+	}
+
+	public ArrayList<Card> findUnknownRooms() {
+		ArrayList<Card> myClues = findMyClues();
+		ArrayList<Card> unknown = new ArrayList<Card>();
+		ArrayList<Card> allRooms = getAllRooms();
+		for (int i = 0; i < allRooms.size(); i++) {
+			unknown = addAll(allRooms);
+		}
+		for (Card c : myClues) {
+			for (int i = 0; i < unknown.size(); i++) {
+				if (c.getName().equals(unknown.get(i).getName())) {
+					unknown.remove(i);
+					i--;
+
+				}
+
+			}
+
+		}
+
+		return unknown;
+
+	}
+
+	public ArrayList<Card> findUnknownWeapons() {
+		ArrayList<Card> myClues = findMyClues();
+		ArrayList<Card> unknown = new ArrayList<Card>();
+		ArrayList<Card> allWeapon = getAllWeapons();
+		for (int i = 0; i < allWeapon.size(); i++) {
+			unknown = addAll(allWeapon);
+			}
+		for (Card c : myClues) {
+			for (int i = 0; i < unknown.size(); i++) {
+				if (c.getName().equals(unknown.get(i).getName())) {
+					unknown.remove(i);
+					i--;
+
+				}
+
+			}
+
+		}
+
+		return unknown;
+
+	}
+
+	public ArrayList<Guess> findPLayerGuesses(Player p) {
+		ArrayList<Guess> playerList = new ArrayList<Guess>();
+		for (Guess g : guessList) {
+			if (g.getGuesser().getName().equals(p.getName())) {
+				playerList.add(g);
+			}
+		}
+		return playerList;
+	}
+	//Adders
+	public void addPlayers() throws Exception {
+		int numPlayers = App.getIntFromUser("How many players?");
+		String name = App.getStringInputFromUser("what is your name?");
+		System.out.println("hello " + name);
+		Player me = new Player(name);
+		players.add(me);
+
+		// make list of other players
+		for (int i = 1; i < numPlayers; i++) {
+			String otherPlayer = App.getStringInputFromUser("what is other player " + i + "'s name?");
+			Player other = new Player(otherPlayer);
+			players.add(other);
+
+		}
+
+	}
+
+	public ArrayList<Card> addAll(ArrayList<Card> list) {
+		ArrayList<Card> added = new ArrayList<Card>();
+		for (int i = 0; i < list.size(); i++) {
+			added.add(list.get(i));
+		}
+		return added;
+	}
+	public ArrayList<Card> addAll(Card[] list) {
+		ArrayList<Card> added = new ArrayList<Card>();
+		for (int i = 0; i < list.length; i++) {
+			added.add(list[i]);
+		}
+		return added;
+	}
+	public void addPlayer(Player p) {
+		getPlayers().add(p);
+
+	}
+	public void addGuess(Guess g) {
+		guessList.add(g);
+
+	}
+	
+	//Getters
+	public Guess getGuessFromUser() throws Exception {
+		Player guessPlayer = getMatchingPLayer(App.getStringInputFromUser("record a guesss who is making this guess?"));
+		Card sus = getMatchingCard(App.getStringInputFromUser("please input suspect"));
+		Card weapon = getMatchingCard(App.getStringInputFromUser("please input weapon"));
+		Card room = getMatchingCard(App.getStringInputFromUser("please input room"));
+		String disPlayer = App.getStringInputFromUser("who disproved the guess?");
+		if (guessPlayer.equals(players.get(0))) {
+			// my guess
+			String disCardName = App.getStringInputFromUser("what was the disproving cards name?");
+			Card thisCard = getMatchingCard(disCardName);
+			if (isValidGuess(sus.getName(), weapon.getName(), room.getName()) && getMatchingPLayer(disPlayer) != null) {
+
+				return new Guess(guessPlayer, sus, room, weapon, getMatchingPLayer(disPlayer), thisCard);
+			}
+		} else {
+			// not my guess
+			return new Guess(guessPlayer, sus, room, weapon, getMatchingPLayer(disPlayer), null);
+		}
+
+		// ask user to input guess
+		// if its our guess, also ask for card shown
+		// return the guess with all information filled in the guess
+		// if the guess was not disproved, leave disprove card null, and leave
+		// disproving player null
+		// NOTE: we do not add the guess to the the game in this method
+
+		return null;
+	}
+	
 	public Guess oldGetGuessFromUser() throws Exception {
-
-		// TODO: handle invalid input so that players can reenter their data
-
 		Player guessPlayer = getMatchingPLayer(App.getStringInputFromUser("record a guesss who is making this guess?"));
 		String sus = App.getStringInputFromUser("please input suspect");
 		String weapon = App.getStringInputFromUser("please input weapon");
@@ -175,11 +410,13 @@ public class Game {
 
 					String disCardName = App.getStringInputFromUser("what was the disproving cards name?");
 					Card thisCard = getMatchingCard(disCardName);
-					Guess g = new Guess(guessPlayer, sus, room, weapon, disPlayer, thisCard);
+					Guess g = new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room),
+							getMatchingCard(weapon), disPlayer, thisCard);
 					if (isRealCard(disCardName)) {
 						players.get(0).getNotePad().add(g);
 						disPlayer.getHandList().add(thisCard);
-						Guess n = new Guess(guessPlayer, sus, room, weapon, disPlayer, thisCard);
+						Guess n = new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room),
+								getMatchingCard(weapon), disPlayer, thisCard);
 						players.get(0).getGuessList().add(n);
 						System.out.println(">succesfuly added<");
 					} else {
@@ -191,7 +428,8 @@ public class Game {
 					// i am not the guesser
 					if (guessPlayer != null && getMatchingSuspect(sus) && isValidWeapon(weapon)) {
 						System.out.println(">succesfuly added<");
-						return new Guess(guessPlayer, sus, room, weapon, disPlayer);
+						return new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room),
+								getMatchingCard(weapon), disPlayer);
 					} else {
 						System.out.println("invalid guess - cannot be entered");
 					}
@@ -206,36 +444,52 @@ public class Game {
 		}
 		return null;
 	}
-
-	public Guess getGuessFromUser() throws Exception {
-		Player guessPlayer = getMatchingPLayer(App.getStringInputFromUser("record a guesss who is making this guess?"));
-		String sus = App.getStringInputFromUser("please input suspect");
-		String weapon = App.getStringInputFromUser("please input weapon");
-		String room = App.getStringInputFromUser("please input room");
-		String disPlayer = App.getStringInputFromUser("who disproved the guess?");
-		if (guessPlayer.equals(players.get(0))) {
-			// my guess
-			String disCardName = App.getStringInputFromUser("what was the disproving cards name?");
-			Card thisCard = getMatchingCard(disCardName);
-			if (isValidGuess(sus, weapon, room) && getMatchingPLayer(disPlayer) != null) {
-
-				return new Guess(guessPlayer, sus, room, weapon, getMatchingPLayer(disPlayer), thisCard);
-			}
-		} else {
-			// not my guess
-			return new Guess(guessPlayer, sus, room, weapon, getMatchingPLayer(disPlayer), null);
-		}
-
-		// ask user to input guess
-		// if its our guess, also ask for card shown
-		// return the guess with all information filled in the guess
-		// if the guess was not disproved, leave disprove card null, and leave
-		// disproving player null
-		// NOTE: we do not add the guess to the the game in this method
-
-		return null;
+	public ArrayList<Guess> getGuessList() {
+		return guessList;
 	}
 
+	private ArrayList<Card> getAllSuspects() {
+		ArrayList<Card> sus = new ArrayList<Card>();
+		for (Card c : allCards) {
+			if (c.getType().equals("suspect")) {
+				sus.add(c);
+			}
+		}
+		return sus;
+	}
+
+	private ArrayList<Card> getAllWeapons() {
+		ArrayList<Card> w = new ArrayList<Card>();
+		for (Card c : allCards) {
+			if (c.getType().equals("weapon")) {
+				w.add(c);
+			}
+		}
+		return w;
+	}
+
+	private ArrayList<Card> getAllRooms() {
+		ArrayList<Card> r = new ArrayList<Card>();
+		for (Card c : allCards) {
+			if (c.getType().equals("room")) {
+				r.add(c);
+			}
+		}
+		return r;
+
+	}
+
+	private ArrayList<Card> getAllAnyType(String whatType) {
+		if(whatType.equals("suspect")) {
+			return getAllSuspects();
+		}else if(whatType.equals("room")) {
+			return getAllRooms();
+		}else if(whatType.equals("weapon")) {
+			return getAllWeapons();
+		}
+		System.out.println("getAllAnyType failed returned null");
+		return null;
+	}
 	private Card getMatchingCard(String disCardName) {
 		for (int i = 0; i < allCards.length; i++) {
 			if (allCards[i].getName().equals(disCardName)) {
@@ -253,16 +507,6 @@ public class Game {
 		}
 		return false;
 	}
-
-	private boolean isValidWeapon(String w) {
-		for (int i = 0; i < allCards.length; i++) {
-			if (w.equals(allCards[i].getName()) && allCards[i].getType().equals("weapon")) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	private Player getMatchingPLayer(String temp) {
 		for (int i = 0; i < players.size(); i++) {
 			if (temp.equals(players.get(i).getName())) {
@@ -272,110 +516,26 @@ public class Game {
 		return null;
 	}
 
-	public boolean isValidGuess(String sus, String w, String room) {
-		if (isRealCard(sus) && isRealCard(w) && isRealCard(room)) {
-			return true;
-		}
-		return false;
+	public Card[] getSecretCards() {
+		return secretCards;
+	}
+	public Card[] getAllCards() {
+		return allCards;
+	}
+	public ArrayList<Player> getPlayers() {
+		return players;
+	}
+// Setter
+	public void setSecretCards(Card[] secretCards) {
+		this.secretCards = secretCards;
 	}
 
-	public void addGuess(Guess g) {
-		guessList.add(g);
-
+	public void setAllCards(Card[] allCards) {
+		this.allCards = allCards;
 	}
 
-	public ArrayList<Guess> findPLayerGuesses(Player p) {
-		ArrayList<Guess> playerList = new ArrayList<Guess>();
-		for (Guess g : guessList) {
-			if (g.getGuesser().getName().equals(p.getName())) {
-				playerList.add(g);
-			}
-		}
-		return playerList;
+	public void setPlayers(ArrayList<Player> players) {
+		this.players = players;
 	}
 
-	public void autoGuess(int k) {
-		for (int i = 0; i < k; i++) {
-			guessList.add(generateRandomGuess());
-		}
-
-	}
-
-	
-
-	private Guess generateRandomGuess() {
-		//TODO actually only generates one guess
-		ArrayList<Card> suspects = new ArrayList<Card>();
-		for(int i = 15; i<= 20; i++) {
-			suspects.add(allCards[i]);
-		}
-		ArrayList<Card> weapons = new ArrayList<Card>();
-		for(int j = 9; j<= 14; j++) {
-			weapons.add(allCards[j]);
-		}
-		ArrayList<Card> rooms = new ArrayList<Card>();
-		for(int k = 0; k< 9; k++) {
-			rooms.add(allCards[k]);
-		}
-		//calc all randoms
-		String s = suspects.get((int)(Math.random() * suspects.size())).getName();
-		String w = weapons.get((int)(Math.random() * weapons.size())).getName();
-		String r = rooms.get((int)(Math.random() * rooms.size())).getName(); 
-		Player guesser = players.get((int)(Math.random() * players.size()));
-		//TODO fix so it picks random people instead of just player 0
-		double disprover = Math.random() * players.size();
-		double discard = Math.random() * allCards.length;
-		if(guesser.getName().equals(players.get(0).getName())) {
-			//gueser is me
-			Guess rand = new Guess(guesser,  s,  r,  w, players.get((int)disprover), allCards[(int)discard]);
-			return rand;
-		}else {
-			//guesser not me
-			Guess rand = new Guess(guesser,  s,  r,  w, players.get((int)disprover), null);
-			return rand;
-		}
-
-	}
-
-	public ArrayList<Card> findMyClues() {
-		ArrayList<Card> myClues = new ArrayList<Card>();
-		System.out.println("my clues:");
-		for (Card v : players.get(0).getHandList()) {
-			myClues.add(v);
-			System.out.println(v.getName());
-		}
-		for (Guess k : guessList) {
-			// select our guesses
-			if (k.getGuesser().getName().equals(players.get(0).getName())) {
-				if(!k.getDisprovingCard().isOnList(myClues)) {
-					myClues.add(k.getDisprovingCard());
-				}
-				System.out.println(k.getDisprovingCard().getName());
-			}
-		}
-		return myClues;
-	}
-	public ArrayList<Card>findUnknownSuspects(){
-		//TODO 
-		ArrayList<Card> myClues = findMyClues();
-		ArrayList<Card> unknown = new ArrayList<Card>();
-		for(Card c: myClues) {
-			for( int i = 15; i <= 20; i++ ) {
-				if(c.getName().equals(allCards[i].getName())) {
-					
-				}
-			}
-		}
-		return null;
-	}
-	public ArrayList<Card>findUnknownRooms(){
-		return null;
-	}
-	public ArrayList<Card>findUnknownWeapons(){
-		return null;
-	}
-	
-	public ArrayList<Guess> getGuessList() {
-		return guessList;
-	}
 }

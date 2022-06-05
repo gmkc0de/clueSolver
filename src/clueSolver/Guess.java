@@ -1,15 +1,15 @@
 package clueSolver;
 
 public class Guess {
-	String suspect;
-	String room;
-	String weapon;
+	Card suspect;
+	Card room;
+	Card weapon;
 	Player disprovePerson;
 	Player madeBy;
 	Card disproveCard;
 
 	
-	public Guess(Player made, String sus, String r, String w, Player disP, Card disC ) {
+	public Guess(Player made, Card sus, Card r, Card w, Player disP, Card disC ) {
 		suspect = sus;
 		room = r;
 		weapon = w;
@@ -17,7 +17,7 @@ public class Guess {
 		disproveCard = disC;
 		madeBy = made;
 	}
-	public Guess(Player made, String sus, String r, String w, Player disP) {
+	public Guess(Player made, Card sus, Card r, Card w, Player disP) {
 		suspect = sus;
 		room = r;
 		weapon = w;
@@ -25,24 +25,28 @@ public class Guess {
 		madeBy = made;
 	}
 
-	public String getSuspect() {
+	public Card getSuspect() {
 		return suspect;
 	}
 
-	public String getRoom() {
+	public Card getRoom() {
 		return room;
 	}
 
-	public String getWeapon() {
+	public Card getWeapon() {
 		return weapon;
 	}
 	public String toString() {
+
 		String s = "";
 		s += "the guess was made by: " + madeBy.getName();
-		s += ", suspect: " + suspect;
-		s += ", weapon: " + weapon;
-		s += ", room: " + room;
+		s += ", suspect: " + suspect.getName();
+		s += ", weapon: " + weapon.getName();
+		s += ", room: " + room.getName();
 		s += ", disproved by: " + disprovePerson.getName();
+		if(disproveCard != null) {
+			s+= ", disproving card: " + disproveCard.getName();
+		}
 		return s;
 	}
 	public Player getGuesser() {

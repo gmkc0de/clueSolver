@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class App {
-//TODO: All get input methods should deal with incorrect input and allow player to try agian instead of requiroing the code to restart
+//TODO: >long term<All get input methods should deal with incorrect input and allow player to try agian instead of requiroing the code to restart
 	public static void main(String[] args) throws Exception {
 		
 		//Game game = new Game();
 		Game game = Game.createTestGame();
-		game.printAllCards();
+		game.dealCards();
+		//game.printAllCards();
 		//game.addPlayers();
-		game.printPlayers();
-		//TODO: Improve ask for hand so that a person can input card name, 
+		game.printPlayers(); 
 		//and the clueSolver will know the card type (saves user typing card type)
 		//hi dad
 		//game.askUserForHand();
@@ -29,11 +29,23 @@ public class App {
 			
 			game.findPLayerGuesses(game.getPlayers().get(0));
 			count ++;
-			if(count > 1) {
-				game.findMyClues();
+			if(count > 0) {
+				System.out.println("my clues:");
+				ArrayList<Card>myClues = game.findMyClues();
+				for(Card c: myClues) {
+					System.out.println(c.getName());
+				}
+				System.out.println(">>----------<<");
 			}
+			System.out.println("unknow sus: ");
+			ArrayList<Card> test = game.findUnknownSuspects();
+			for(Card c: test) {
+				System.out.println(c.getName());
+			}
+			System.out.println(">>----------<<");
 			
 		}
+		
 		//1)
 		//Ask user the size of their hand
 		
@@ -89,31 +101,5 @@ public class App {
 	}
 	
 
-	public void dealCards(ArrayList<Player> players, List<Card> c, Card[] s) {
-		// deal the three secret cards 
-		String whatType = "suspect";
-		String nextType = "weapon";
-		ArrayList<Card> cards = new ArrayList<Card>(c);
-		for(int i = 0; i < 3; i++) {
-			if(cards.size()!= 0){
-				int num = (int)Math.random() * cards.size();
-				if(cards.get(num).getType() == whatType) {
-					s[i] = cards.get(num);
-					cards.remove(num);
-					whatType = nextType;
-					nextType = "room";
-				}
-			}
-		}
-		// deal to players
-		while(cards.size() != 0) {
-			for(Player p: players) {
-				if(cards.size()!= 0){
-				int num = (int)Math.random() * cards.size();
-				p.getHandList().add(cards.get(num));
-				cards.remove(num);
-				}
-			}
-		}	
-	}
+	
 }
