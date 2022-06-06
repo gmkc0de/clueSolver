@@ -34,7 +34,7 @@ public class Player {
 		//TODO why does it not recognize player??
 		if(o instanceof Player) {
 			Player playerToTest = (Player)o;
-			playerToTest.getName().equals(this.getName());
+			return playerToTest.getName().equals(this.getName());
 		}
 		return false;
 	}

@@ -13,7 +13,7 @@ public class Game {
 	private ArrayList<Guess> guessList;
 
 	// allGuesses
-
+//TODO: do numbers four and five from dads email (the .equals ones)
 	public Game() {
 		players = new ArrayList<Player>();
 		secretCards = new Card[3];
@@ -57,7 +57,7 @@ public class Game {
 			cardList.add(c);
 		}
 		for (int i = 0; i < 3; i++) {
-			int num = (int) Math.random() * cardList.size();
+			int num = (int) (Math.random() * cardList.size());
 			g.getHandList().add(cardList.get(num));
 			cardList.remove(num);
 		}
@@ -86,18 +86,13 @@ public class Game {
 		while(availibleCards.size() != 0) {
 			for(Player p: players) {
 				if(availibleCards.size()!= 0){
-				int num = (int)Math.random() * availibleCards.size();
+				int num = (int)(Math.random() * availibleCards.size());
 				p.getHandList().add(availibleCards.get(num));
 				availibleCards.remove(num);
 				}
 			}
 		}	
 	}
-	
-	
-
-
-
 
 	public void printAllCards() {
 		for (int i = 0; i < allCards.length; i++) {
@@ -231,8 +226,10 @@ public class Game {
 			myClues.add(v);
 		}
 		ArrayList<Guess> myGuesses = findPLayerGuesses(getMyPlayer());
-		for(Guess g: myGuesses ) {
-			
+		for(Guess g : myGuesses) {
+			if(!myClues.contains(g.getDisprovingCard())) {
+				myClues.add(g.getDisprovingCard());
+			}
 		}
 		return myClues;
 	}

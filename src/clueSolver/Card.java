@@ -37,6 +37,13 @@ public class Card {
 		return false;
 	}
 	
+	public boolean equals(Object o) {
+		if(o instanceof Card) {
+			Card cardToTest = (Card)o;
+			return cardToTest.getName().equals(this.getName());
+		}
+		return false;
+	}
 }
 
 
