@@ -30,5 +30,23 @@ public class Player {
 			System.out.println(c.getName() + "-" + c.getType() );
 		}
 	}
+	public boolean equals(Object o) {
+		//TODO why does it not recognize player??
+		if(o instanceof Player) {
+			Player playerToTest = (Player)o;
+			playerToTest.getName().equals(this.getName());
+		}
+		return false;
+	}
 	
 }
+
+
+
+
+
+
+
+
+
+

@@ -73,7 +73,7 @@ public class Game {
 		for(int i = 0; i < 3; i++) {
 			if(availibleCards.size()!= 0){
 				ArrayList<Card> typeList = getAllAnyType(whatType);
-				int num = (int)Math.random() * typeList.size();
+				int num = (int)(Math.random() * typeList.size());
 				secretCards[i] = typeList.get(num);
 				//removes dealt card from available list
 				availibleCards.remove(getMatchingCard(typeList.get(num).getName()));
@@ -121,7 +121,7 @@ public class Game {
 			String nameOfCard = App.getStringInputFromUser("please enter a cards name.");
 			Card thisCard = getMatchingCard(nameOfCard);
 			if (thisCard != null) {
-				players.get(0).getHandList().add(thisCard);
+				getMyPlayer().getHandList().add(thisCard);
 				System.out.println(">succesfuly added<");
 			} else {
 				System.out.println("invalid card please try agian");
@@ -210,7 +210,7 @@ public class Game {
 		Player disprover = anyPlayerButThis(guesser);
 		// discard is chosen from one of the cards guessed
 		Card disCard = guessCards.get((int) (Math.random() * guessCards.size()));
-		if (guesser.getName().equals(players.get(0).getName())) {
+		if (guesser.getName().equals(getMyPlayer().getName())) {
 			// if guesser is me
 			Guess rand = new Guess(guesser, s, r, w, disprover,	disCard);
 			return rand;
@@ -227,10 +227,10 @@ public class Game {
 	public ArrayList<Card> findMyClues() {
 		// TODO: make loop so findplyer refactor works
 		ArrayList<Card> myClues = new ArrayList<Card>();
-		for (Card v : players.get(0).getHandList()) {
+		for (Card v : getMyPlayer().getHandList()) {
 			myClues.add(v);
 		}
-		ArrayList<Guess> myGuesses = findPLayerGuesses(players.get(0));
+		ArrayList<Guess> myGuesses = findPLayerGuesses(getMyPlayer());
 		for(Guess g: myGuesses ) {
 			
 		}
@@ -362,7 +362,7 @@ public class Game {
 		Card weapon = getMatchingCard(App.getStringInputFromUser("please input weapon"));
 		Card room = getMatchingCard(App.getStringInputFromUser("please input room"));
 		String disPlayer = App.getStringInputFromUser("who disproved the guess?");
-		if (guessPlayer.equals(players.get(0))) {
+		if (guessPlayer.equals(getMyPlayer())) {
 			// my guess
 			String disCardName = App.getStringInputFromUser("what was the disproving cards name?");
 			Card thisCard = getMatchingCard(disCardName);
@@ -398,7 +398,7 @@ public class Game {
 				// not disproved!
 			} else if (disPlayer != null) {
 				// the guess was disproved
-				if (guessPlayer.equals(players.get(0))) {
+				if (guessPlayer.equals(getMyPlayer())) {
 					// i am the guesser, and my guess was disproved
 					// record the disproved card in my note notepad
 
@@ -407,11 +407,11 @@ public class Game {
 					Guess g = new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room),
 							getMatchingCard(weapon), disPlayer, thisCard);
 					if (isRealCard(disCardName)) {
-						players.get(0).getNotePad().add(g);
+						getMyPlayer().getNotePad().add(g);
 						disPlayer.getHandList().add(thisCard);
 						Guess n = new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room),
 								getMatchingCard(weapon), disPlayer, thisCard);
-						players.get(0).getGuessList().add(n);
+						getMyPlayer().getGuessList().add(n);
 						System.out.println(">succesfuly added<");
 					} else {
 						System.out.println("invalid card");
@@ -519,6 +519,9 @@ public class Game {
 	public ArrayList<Player> getPlayers() {
 		return players;
 	}
+	public Player getMyPlayer() {
+		return players.get(0);
+	}
 // Setter
 	public void setSecretCards(Card[] secretCards) {
 		this.secretCards = secretCards;
@@ -531,5 +534,6 @@ public class Game {
 	public void setPlayers(ArrayList<Player> players) {
 		this.players = players;
 	}
+	
 
 }
