@@ -180,10 +180,10 @@ public class Game {
 		return p;
 	}
 	private Guess generateRandomGuess() {
-		ArrayList<Card> suspects = new ArrayList<Card>();
-		ArrayList<Card> weapons = new ArrayList<Card>();
-		ArrayList<Card> rooms = new ArrayList<Card>();
-		ArrayList<String> guessCards = new ArrayList<String>();
+		ArrayList<Card> suspects = getAllSuspects();
+		ArrayList<Card> weapons = getAllWeapons();
+		ArrayList<Card> rooms = getAllRooms();
+		ArrayList<Card> guessCards = new ArrayList<Card>();
 		for (Card c : allCards) {
 			// fill suspects
 			if (c.getType().equals("suspect")) {
@@ -198,27 +198,25 @@ public class Game {
 
 		}
 		// calc all randoms
-		String s = suspects.get((int) (Math.random() * suspects.size())).getName();
+		Card s = suspects.get((int) (Math.random() * suspects.size()));
 		guessCards.add(s);
-		String w = weapons.get((int) (Math.random() * weapons.size())).getName();
+		Card w = weapons.get((int) (Math.random() * weapons.size()));
 		guessCards.add(w);
-		String r = rooms.get((int) (Math.random() * rooms.size())).getName();
+		Card r = rooms.get((int) (Math.random() * rooms.size()));
 		guessCards.add(r);
 		// any player
 		Player guesser = players.get((int) (Math.random() * players.size()));
 		// any player but the guesser
 		Player disprover = anyPlayerButThis(guesser);
 		// discard is chosen from one of the cards guessed
-		String disCard = guessCards.get((int) (Math.random() * guessCards.size()));
+		Card disCard = guessCards.get((int) (Math.random() * guessCards.size()));
 		if (guesser.getName().equals(players.get(0).getName())) {
 			// if guesser is me
-			Guess rand = new Guess(guesser, getMatchingCard(s), getMatchingCard(r), getMatchingCard(w), disprover,
-					getMatchingCard(disCard));
+			Guess rand = new Guess(guesser, s, r, w, disprover,	disCard);
 			return rand;
 		} else {
 			// if guesser not me
-			Guess rand = new Guess(guesser, getMatchingCard(s), getMatchingCard(r), getMatchingCard(w), disprover,
-					null);
+			Guess rand = new Guess(guesser, s, r, w, disprover, null);
 			return rand;
 		}
 
@@ -227,18 +225,14 @@ public class Game {
 
 
 	public ArrayList<Card> findMyClues() {
-		// TODO:refactor findMyClues to use findPlayerGuesses()
+		// TODO: make loop so findplyer refactor works
 		ArrayList<Card> myClues = new ArrayList<Card>();
 		for (Card v : players.get(0).getHandList()) {
 			myClues.add(v);
 		}
-		for (Guess k : guessList) {
-			// select our guesses
-			if (k.getGuesser().getName().equals(players.get(0).getName())) {
-				if (!k.getDisprovingCard().isOnList(myClues)) {
-					myClues.add(k.getDisprovingCard());
-				}
-			}
+		ArrayList<Guess> myGuesses = findPLayerGuesses(players.get(0));
+		for(Guess g: myGuesses ) {
+			
 		}
 		return myClues;
 	}
