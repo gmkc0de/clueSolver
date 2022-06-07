@@ -44,11 +44,12 @@ public class Game {
 
 	
 
-	public static Game createTestGame() {
+	public  static Game createTestGame() {
 		Game game = new Game();
-		Player g = new Player("g");
-		Player h = new Player("h");
-		Player j = new Player("j");
+		
+		Player g = new Player("g", game);
+		Player h = new Player("h", game);
+		Player j = new Player("j", game );
 		game.addPlayer(g);
 		game.addPlayer(h);
 		game.addPlayer(j);
@@ -126,6 +127,19 @@ public class Game {
 		}
 
 	}
+	public void autoGuess(int k) {
+		for (int i = 0; i < k; i++) {
+			guessList.add(generateRandomGuess());
+		}
+
+	}
+	private Player anyPlayerButThis(Player guesser) {
+		Player p = players.get((int) (Math.random() * players.size()));
+		if (p.equals(guesser)) {
+			return anyPlayerButThis(guesser);
+		}
+		return p;
+	}
 
 	// if my guess, record the card i see with my guess
 	// if not my guess, record the guess and who disproved in the games guess list
@@ -161,37 +175,13 @@ public class Game {
 
 	
 
-	public void autoGuess(int k) {
-		for (int i = 0; i < k; i++) {
-			guessList.add(generateRandomGuess());
-		}
-
-	}
-	private Player anyPlayerButThis(Player guesser) {
-		Player p = players.get((int) (Math.random() * players.size()));
-		if (p.getName().equals(guesser.getName())) {
-			return anyPlayerButThis(guesser);
-		}
-		return p;
-	}
+	
+	
 	private Guess generateRandomGuess() {
 		ArrayList<Card> suspects = getAllSuspects();
 		ArrayList<Card> weapons = getAllWeapons();
 		ArrayList<Card> rooms = getAllRooms();
 		ArrayList<Card> guessCards = new ArrayList<Card>();
-		for (Card c : allCards) {
-			// fill suspects
-			if (c.getType().equals("suspect")) {
-				suspects.add(c);
-				// fill weapons
-			} else if (c.getType().equals("weapon")) {
-				weapons.add(c);
-			} else {
-				// fill rooms
-				rooms.add(c);
-			}
-
-		}
 		// calc all randoms
 		Card s = suspects.get((int) (Math.random() * suspects.size()));
 		guessCards.add(s);
@@ -219,23 +209,23 @@ public class Game {
 
 
 
-	public ArrayList<Card> findMyClues() {
+	public ArrayList<Card> findPlayerClues(Player p) {
 		// TODO: make loop so findplyer refactor works
-		ArrayList<Card> myClues = new ArrayList<Card>();
-		for (Card v : getMyPlayer().getHandList()) {
-			myClues.add(v);
+		ArrayList<Card> playerClues = new ArrayList<Card>();
+		for (Card v : p.getHandList()) {
+			playerClues.add(v);
 		}
-		ArrayList<Guess> myGuesses = findPLayerGuesses(getMyPlayer());
-		for(Guess g : myGuesses) {
-			if(!myClues.contains(g.getDisprovingCard())) {
-				myClues.add(g.getDisprovingCard());
+		ArrayList<Guess> playerGuesses = findPLayerGuesses(p);
+		for(Guess g : playerGuesses) {
+			if(!playerClues.contains(g.getDisprovingCard())) {
+				playerClues.add(g.getDisprovingCard());
 			}
 		}
-		return myClues;
+		return playerClues;
 	}
 
 	public ArrayList<Card> findUnknownSuspects() {
-		ArrayList<Card> myClues = findMyClues();
+		ArrayList<Card> myClues = findPlayerClues(getMyPlayer());
 		ArrayList<Card> unknown = new ArrayList<Card>();
 		ArrayList<Card> allSus = getAllSuspects();
 		for (int i = 0; i < allSus.size(); i++) {
@@ -243,7 +233,7 @@ public class Game {
 		}
 		for (Card c : myClues) {
 			for (int i = 0; i < unknown.size(); i++) {
-				if (c.getName().equals(unknown.get(i).getName())) {
+				if (c.equals(unknown.get(i))) {
 					unknown.remove(i);
 					i--;
 
@@ -257,7 +247,7 @@ public class Game {
 	}
 
 	public ArrayList<Card> findUnknownRooms() {
-		ArrayList<Card> myClues = findMyClues();
+		ArrayList<Card> myClues = findPlayerClues(getMyPlayer());
 		ArrayList<Card> unknown = new ArrayList<Card>();
 		ArrayList<Card> allRooms = getAllRooms();
 		for (int i = 0; i < allRooms.size(); i++) {
@@ -265,7 +255,7 @@ public class Game {
 		}
 		for (Card c : myClues) {
 			for (int i = 0; i < unknown.size(); i++) {
-				if (c.getName().equals(unknown.get(i).getName())) {
+				if (c.equals(unknown.get(i))) {
 					unknown.remove(i);
 					i--;
 
@@ -280,7 +270,7 @@ public class Game {
 	}
 
 	public ArrayList<Card> findUnknownWeapons() {
-		ArrayList<Card> myClues = findMyClues();
+		ArrayList<Card> myClues = findPlayerClues(getMyPlayer());
 		ArrayList<Card> unknown = new ArrayList<Card>();
 		ArrayList<Card> allWeapon = getAllWeapons();
 		for (int i = 0; i < allWeapon.size(); i++) {
@@ -288,7 +278,7 @@ public class Game {
 			}
 		for (Card c : myClues) {
 			for (int i = 0; i < unknown.size(); i++) {
-				if (c.getName().equals(unknown.get(i).getName())) {
+				if (c.equals(unknown.get(i))) {
 					unknown.remove(i);
 					i--;
 
@@ -305,24 +295,27 @@ public class Game {
 	public ArrayList<Guess> findPLayerGuesses(Player p) {
 		ArrayList<Guess> playerList = new ArrayList<Guess>();
 		for (Guess g : guessList) {
-			if (g.getGuesser().getName().equals(p.getName())) {
+			if (g.getGuesser().equals(p)) {
 				playerList.add(g);
 			}
 		}
 		return playerList;
 	}
+	
+	
+	
 	//Adders
 	public void addPlayers() throws Exception {
 		int numPlayers = App.getIntFromUser("How many players?");
 		String name = App.getStringInputFromUser("what is your name?");
 		System.out.println("hello " + name);
-		Player me = new Player(name);
+		Player me = new Player(name, this);
 		players.add(me);
 
 		// make list of other players
 		for (int i = 1; i < numPlayers; i++) {
 			String otherPlayer = App.getStringInputFromUser("what is other player " + i + "'s name?");
-			Player other = new Player(otherPlayer);
+			Player other = new Player(otherPlayer, this);
 			players.add(other);
 
 		}
