@@ -55,5 +55,9 @@ public class Guess {
 	public Card getDisprovingCard() {
 		return disproveCard;
 	}
+	public boolean equals(){
+		
+		return false;
+	}
 	
 }
