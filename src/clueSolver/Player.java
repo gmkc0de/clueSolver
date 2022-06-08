@@ -58,11 +58,7 @@ public class Player {
 
 	public boolean hasSeenCard(Card c) {
 		ArrayList<Card> theirClues = currentGame.findPlayerClues(this);
-		if (theirClues.contains(c)) {
-			return true;
-		}
-
-		return false;
+		return theirClues.contains(c);
 	}
 
 	public ArrayList<Card> findDisprovingCards(Guess g) {
