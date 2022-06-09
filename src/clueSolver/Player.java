@@ -7,6 +7,7 @@ public class Player {
 	private ArrayList<Guess> guesses;
 	private ArrayList<Card> hand;
 	private Game currentGame;
+	private boolean isComputer;
 	public ArrayList<Guess> notePad;
 
 	public Player(String name, Game g) {
@@ -15,6 +16,7 @@ public class Player {
 		hand = new ArrayList<Card>();
 		notePad = new ArrayList<Guess>();
 		currentGame = g;
+		isComputer = true;
 	}
 
 	public ArrayList<Guess> getGuessList() {
@@ -23,6 +25,9 @@ public class Player {
 
 	public String getName() {
 		return name;
+	}
+	public boolean isComputer() {
+		return isComputer;
 	}
 
 	public ArrayList<Card> getHandList() {
