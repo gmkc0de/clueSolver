@@ -40,7 +40,7 @@ public class App {
 				System.out.println(">>----------<<");
 			}
 			System.out.println("unknow sus: ");
-			ArrayList<Card> test = game.findUnknownSuspects();
+			ArrayList<Card> test = game.findUnknownSuspects(game.getMyPlayer());
 			for(Card c: test) {
 				System.out.println(c.getName());
 			}
