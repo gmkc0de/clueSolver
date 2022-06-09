@@ -63,6 +63,31 @@ public class Game {
 		System.out.println(">>test game created<<");
 		return game;
 	}
+	public Player nextPlayersTurn(){
+		Player nextPlayer = null;
+		if(guessList.size() == 0) {
+			//if there have been no rounds
+			nextPlayer = players.get(0);
+		}else {
+			//get the last person who guessed
+			Player lastGuesser = guessList.get(guessList.size()- 1).getGuesser();
+			if(players.indexOf(lastGuesser) == guessList.size()- 1) {
+				//if the lastGuesser was the last on the list start over at the top
+				nextPlayer = players.get(0);
+			}else {
+				//last guesser is not last do the next on the list
+				int num = players.indexOf(lastGuesser);
+				nextPlayer = players.get(num + 1);
+			}
+			
+		}
+		
+		return nextPlayer;
+	}
+	public void takeTurn() {
+		generateRandomGuess(nextPlayersTurn());
+	}
+
 
 	public void dealCards() {
 		// deal the three secret cards
@@ -92,6 +117,14 @@ public class Game {
 				}
 			}
 		}
+	}
+	public boolean hasWinningGuess(){
+		for(Guess g: guessList) {
+			if(g.getSuspect().equals(secretCards[0])&&g.getWeapon() .equals(secretCards[1])&&g.getRoom().equals(secretCards[2])) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void printAllCards() {
@@ -206,12 +239,12 @@ public class Game {
 		 }
 
 		// discard is chosen from one of the cards guessed
-		if (guesser.getName().equals(getMyPlayer().getName())) {
-			// if guesser is me
+		if (guesser.equals(getMyPlayer()) || guesser.isComputer()) {
+			// if guesser is me or a computerized player
 			Guess rand = new Guess(guesser, s, r, w, disprover, disCard);
 			return rand;
 		} else {
-			// if guesser not me
+			// if guesser the is a human who is not me
 			Guess rand = new Guess(guesser, s, r, w, disprover, null);
 			return rand;
 		}
