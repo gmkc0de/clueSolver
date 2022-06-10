@@ -48,6 +48,7 @@ public class Game {
 		Player g = new Player("g", game);
 		Player h = new Player("h", game);
 		Player j = new Player("j", game);
+		Player k = new Player("k", game);
 		game.addPlayer(g);
 		game.addPlayer(h);
 		game.addPlayer(j);
@@ -71,11 +72,11 @@ public class Game {
 		}else {
 			//get the last person who guessed
 			Player lastGuesser = guessList.get(guessList.size()- 1).getGuesser();
-			if(players.indexOf(lastGuesser) == guessList.size()- 1) {
-				//if the lastGuesser was the last on the list start over at the top
+			if(players.indexOf(lastGuesser) == players.size()- 1) {
+				//if the lastGuesser was the last on the player list start over at the top
 				nextPlayer = players.get(0);
 			}else {
-				//last guesser is not last do the next on the list
+				//last guesser is not last its the next player on the player lists turn
 				int num = players.indexOf(lastGuesser);
 				nextPlayer = players.get(num + 1);
 			}
@@ -219,21 +220,31 @@ public class Game {
 		ArrayList<Player> possibleDisprovers = allPlayersButThis(guesser);
 
 		// calc all random cards
+		//TODO: these all keep giving me the "Index 0 out of bounds for length 0" error
+		//debug to fix
 		Card s = suspects.get((int) (Math.random() * suspects.size()));
 		guessCards.add(s);
 		Card w = weapons.get((int) (Math.random() * weapons.size()));
 		guessCards.add(w);
 		Card r = rooms.get((int) (Math.random() * rooms.size()));
 		guessCards.add(r);
+		//will be left null of no one disproves
 		Card disCard = null;
 		Player disprover = null;
 
 		 for(Player p: possibleDisprovers) {
+			
 			Card dis = p.disproveGuess(new Guess(guesser, s, r, w, p, null));
 			if(dis != null) {
+				//fills in cards if player can disprove
 				disprover = p;
 				disCard = dis;
 				break;
+			}else {
+				// guess cannot be disproved 
+				//should probably deal with the nulls
+				Guess rand = new Guess(guesser, s, r, w, null, null);
+				return rand;
 			}
 			
 		 }

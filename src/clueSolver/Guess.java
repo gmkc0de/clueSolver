@@ -43,7 +43,12 @@ public class Guess {
 		s += ", suspect: " + suspect.getName();
 		s += ", weapon: " + weapon.getName();
 		s += ", room: " + room.getName();
-		s += ", disproved by: " + disprovePerson.getName();
+		if(disprovePerson != null) {
+			s += ", disproved by: " + disprovePerson.getName();
+
+		}else {
+			s += ", disproved by: NULL";
+		}
 		if(disproveCard != null) {
 			s+= ", disproving card: " + disproveCard.getName();
 		}
