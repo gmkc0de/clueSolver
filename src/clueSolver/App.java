@@ -15,8 +15,9 @@ public class App {
 		// game.printAllCards();
 		// game.addPlayers();
 		game.printPlayers();
+		int count = 0;
 		while (!game.hasWinningGuess()) {
-
+			count ++;
 			game.takeTurn();
 
 			System.out.println(game.getGuessList().get(game.getGuessList().size() - 1));
@@ -36,8 +37,10 @@ public class App {
 				System.out.println(c.getName());
 			}
 			System.out.println(">>----------<<");
-
+			
 		}
+		System.out.println(">>we have  a winner! " + game.findWinningGuess()+" after "+count +" turns<<");
+		
 
 		// 1)
 		// Ask user the size of their hand
