@@ -48,6 +48,7 @@ public class Game {
 		Player g = new Player("g", game);
 		Player h = new Player("h", game);
 		Player j = new Player("j", game);
+		Player k = new Player("k", game);
 		game.addPlayer(g);
 		game.addPlayer(h);
 		game.addPlayer(j);
@@ -71,11 +72,11 @@ public class Game {
 		}else {
 			//get the last person who guessed
 			Player lastGuesser = guessList.get(guessList.size()- 1).getGuesser();
-			if(players.indexOf(lastGuesser) == guessList.size()- 1) {
-				//if the lastGuesser was the last on the list start over at the top
+			if(players.indexOf(lastGuesser) == players.size()- 1) {
+				//if the lastGuesser was the last on the player list start over at the top
 				nextPlayer = players.get(0);
 			}else {
-				//last guesser is not last do the next on the list
+				//last guesser is not last its the next player on the player lists turn
 				int num = players.indexOf(lastGuesser);
 				nextPlayer = players.get(num + 1);
 			}
@@ -85,7 +86,7 @@ public class Game {
 		return nextPlayer;
 	}
 	public void takeTurn() {
-		generateRandomGuess(nextPlayersTurn());
+		guessList.add(generateRandomGuess(nextPlayersTurn()));
 	}
 
 
@@ -174,13 +175,13 @@ public class Game {
 		return p;
 	}
 	private ArrayList<Player> allPlayersButThis(Player guesser) {
-		ArrayList<Player> allPlayers = getPlayers();
-		for(Player p: allPlayers) {
+		ArrayList<Player> allButThis = new ArrayList<Player>(); 
+		for(Player p: getPlayers()) {
 			if(!p.equals(guesser)) {
-				allPlayers.add(p);
+				allButThis.add(p);
 			}
 		}
-		return allPlayers;
+		return allButThis;
 	}
 
 	// if my guess, record the card i see with my guess
@@ -212,28 +213,38 @@ public class Game {
 	}
 
 	private Guess generateRandomGuess(Player guesser) {
-		ArrayList<Card> suspects = findUnknownSuspects(getMyPlayer());
-		ArrayList<Card> weapons = findUnknownWeapons(getMyPlayer());
-		ArrayList<Card> rooms = findUnknownRooms(getMyPlayer());
+		ArrayList<Card> suspects = findUnknownSuspects(guesser);
+		ArrayList<Card> weapons = findUnknownWeapons(guesser);
+		ArrayList<Card> rooms = findUnknownRooms(guesser);
 		ArrayList<Card> guessCards = new ArrayList<Card>();
 		ArrayList<Player> possibleDisprovers = allPlayersButThis(guesser);
 
 		// calc all random cards
+		//TODO: these all keep giving me the "Index 0 out of bounds for length 0" error
+		//debug to fix
 		Card s = suspects.get((int) (Math.random() * suspects.size()));
 		guessCards.add(s);
 		Card w = weapons.get((int) (Math.random() * weapons.size()));
 		guessCards.add(w);
 		Card r = rooms.get((int) (Math.random() * rooms.size()));
 		guessCards.add(r);
+		//will be left null of no one disproves
 		Card disCard = null;
 		Player disprover = null;
 
 		 for(Player p: possibleDisprovers) {
+			
 			Card dis = p.disproveGuess(new Guess(guesser, s, r, w, p, null));
 			if(dis != null) {
+				//fills in cards if player can disprove
 				disprover = p;
 				disCard = dis;
 				break;
+			}else {
+				// guess cannot be disproved 
+				//should probably deal with the nulls
+				Guess rand = new Guess(guesser, s, r, w, null, null);
+				return rand;
 			}
 			
 		 }
@@ -253,7 +264,7 @@ public class Game {
 
 	public ArrayList<Card> findPlayerClues(Player p) {
 		// TODO: make loop so findplyer refactor works
-		ArrayList<Card> playerClues = addAll(allCards);
+		ArrayList<Card> playerClues = addAll(p.getHandList());
 
 		ArrayList<Guess> playerGuesses = findPLayerGuesses(p);
 		for (Guess g : playerGuesses) {
@@ -266,11 +277,9 @@ public class Game {
 
 	public ArrayList<Card> findUnknownSuspects(Player p) {
 		ArrayList<Card> playerClues = findPlayerClues(p);
-		ArrayList<Card> unknown = new ArrayList<Card>();
 		ArrayList<Card> allSus = getAllSuspects();
-		for (int i = 0; i < allSus.size(); i++) {
-			unknown = addAll(allSus);
-		}
+		ArrayList<Card> unknown = addAll(allSus);
+
 		for (Card c : playerClues) {
 			for (int i = 0; i < unknown.size(); i++) {
 				if (c.equals(unknown.get(i))) {
@@ -288,11 +297,9 @@ public class Game {
 
 	public ArrayList<Card> findUnknownRooms(Player p) {
 		ArrayList<Card> playerClues = findPlayerClues(p);
-		ArrayList<Card> unknown = new ArrayList<Card>();
 		ArrayList<Card> allRooms = getAllRooms();
-		for (int i = 0; i < allRooms.size(); i++) {
-			unknown = addAll(allRooms);
-		}
+		ArrayList<Card> unknown =addAll(allRooms);
+		
 		for (Card c : playerClues) {
 			for (int i = 0; i < unknown.size(); i++) {
 				if (c.equals(unknown.get(i))) {
@@ -311,11 +318,9 @@ public class Game {
 
 	public ArrayList<Card> findUnknownWeapons(Player p) {
 		ArrayList<Card> myClues = findPlayerClues(p);
-		ArrayList<Card> unknown = new ArrayList<Card>();
 		ArrayList<Card> allWeapon = getAllWeapons();
-		for (int i = 0; i < allWeapon.size(); i++) {
-			unknown = addAll(allWeapon);
-		}
+		ArrayList<Card> unknown = addAll(allWeapon);
+
 		for (Card c : myClues) {
 			for (int i = 0; i < unknown.size(); i++) {
 				if (c.equals(unknown.get(i))) {

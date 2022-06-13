@@ -90,7 +90,7 @@ public class Player {
 					return c;
 				}
 			}
-
+			System.out.println(">>you have disproved "+ g.getGuesser().getName()+"'s guess with the "+ canDisprove.get(0).getName()+" card"+"<<");
 			return canDisprove.get(0);
 		}else {
 			System.out.println(">>you cannot disprove this guess<<");
