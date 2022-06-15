@@ -92,6 +92,38 @@ public class Game {
 	}
 
 	public void dealCards() {
+		ArrayList<Card> toDeal = addAll(allCards);
+		// pick the three sescret cards	
+		Card randomSuspect = findRandomSuspect();
+		Card randomWeapon = findRandomWeapon();
+		Card randomRoom = findRandomRoom();
+		// fill in secret cards array
+		secretCards[0] = randomSuspect;
+		secretCards[1] = randomWeapon;
+		secretCards[2] = randomRoom;
+		
+		// remove the secret cards from the cards to be dealt
+		toDeal.remove(randomSuspect);
+		toDeal.remove(randomWeapon);
+		toDeal.remove(randomRoom);
+		
+		toDeal.remove(randomSuspect);
+		toDeal.remove(randomRoom);
+		// deal till there are no more cards
+		while (toDeal.size() > 0) {
+			for (Player p : players) {
+				if (toDeal.size() > 0) {
+					int num = (int) (Math.random() * toDeal.size());
+					p.getHandList().add(toDeal.get(num));
+					toDeal.remove(num);
+				} else {
+					break;
+				}
+			}
+		}
+	}
+
+	public void oldDealCards() {
 		// deal the three secret cards
 		String whatType = "suspect";
 		String nextType = "weapon";
@@ -120,8 +152,6 @@ public class Game {
 			}
 		}
 	}
-
-	
 
 	public void printAllCards() {
 		for (int i = 0; i < allCards.length; i++) {
@@ -215,12 +245,20 @@ public class Game {
 		// calc all random cards
 		// TODO: these all keep giving me the "Index 0 out of bounds for length 0" error
 		// debug to fix
-		Card s = suspects.get((int) (Math.random() * suspects.size()));
-		guessCards.add(s);
-		Card w = weapons.get((int) (Math.random() * weapons.size()));
-		guessCards.add(w);
-		Card r = rooms.get((int) (Math.random() * rooms.size()));
-		guessCards.add(r);
+		Card s = null;
+		Card w = null;
+		Card r = null;
+		try {
+			s = suspects.get((int) (Math.random() * suspects.size()));
+			guessCards.add(s);
+			w = weapons.get((int) (Math.random() * weapons.size()));
+			guessCards.add(w);
+			r = rooms.get((int) (Math.random() * rooms.size()));
+			guessCards.add(r);
+		}
+		catch(Exception e) {
+			System.out.println(e.getLocalizedMessage());
+		}
 		// will be left null of no one disproves
 		Card disCard = null;
 		Player disprover = null;
@@ -236,7 +274,7 @@ public class Game {
 			}
 
 		}
-		//if the guess was not disproved
+		// if the guess was not disproved
 		if (disprover == null) {
 			System.out.println(">>no one could disprove this guess<<");
 			return new Guess(guesser, s, r, w, null, null);
@@ -256,16 +294,12 @@ public class Game {
 
 	}
 
-	
-
 	public ArrayList<Card> findUnknownSuspects(Player p) {
 		// wow dad just wow -_-
 		ArrayList<Card> playerClues = findPlayerClues(p);
 		ArrayList<Card> allSus = getAllSuspects();
 		ArrayList<Card> unknown = addAll(allSus);
 		unknown.removeAll(playerClues);
-
-		
 
 		return unknown;
 	}
@@ -288,6 +322,7 @@ public class Game {
 		return unknown;
 
 	}
+
 	public ArrayList<Card> findPlayerClues(Player p) {
 		// add all the clues in the players hand
 		ArrayList<Card> playerClues = addAll(p.getHandList());
@@ -311,7 +346,7 @@ public class Game {
 	}
 
 	public Guess findWinningGuess() {
-		
+
 		for (Guess g : guessList) {
 			if (g.getSuspect().equals(secretCards[0]) && g.getWeapon().equals(secretCards[1])
 					&& g.getRoom().equals(secretCards[2])) {
@@ -320,11 +355,29 @@ public class Game {
 		}
 		return null;
 	}
-	
-	
+
+	private Card findRandomSuspect() {
+		ArrayList<Card> s = getAllSuspects();
+		int num = (int) (Math.random() * s.size());
+
+		return s.get(num);
+	}
+
+	private Card findRandomRoom() {
+		ArrayList<Card> r = getAllRooms();
+		int num = (int) (Math.random() * r.size());
+		return r.get(num);
+	}
+
+	private Card findRandomWeapon() {
+		ArrayList<Card> w = getAllWeapons();
+		int num = (int) (Math.random() * w.size());
+
+		return w.get(num);
+	}
 
 	public boolean hasWinningGuess() {
-		
+
 		return findWinningGuess() != null;
 	}
 
@@ -545,28 +598,31 @@ public class Game {
 	public Player getMyPlayer() {
 		return players.get(0);
 	}
+
 	private ArrayList<Card> getSuspectsFrom(ArrayList<Card> list) {
 		ArrayList<Card> sus = new ArrayList<Card>();
-		for(Card c: list) {
-			if(c.getType().equals("suspect")) {
+		for (Card c : list) {
+			if (c.getType().equals("suspect")) {
 				sus.add(c);
 			}
 		}
 		return sus;
 	}
+
 	private ArrayList<Card> getWeaponsFrom(ArrayList<Card> list) {
 		ArrayList<Card> w = new ArrayList<Card>();
-		for(Card c: list) {
-			if(c.getType().equals("suspect")) {
+		for (Card c : list) {
+			if (c.getType().equals("suspect")) {
 				w.add(c);
 			}
 		}
 		return w;
 	}
+
 	private ArrayList<Card> getRoomsFrom(ArrayList<Card> list) {
 		ArrayList<Card> r = new ArrayList<Card>();
-		for(Card c: list) {
-			if(c.getType().equals("suspect")) {
+		for (Card c : list) {
+			if (c.getType().equals("suspect")) {
 				r.add(c);
 			}
 		}

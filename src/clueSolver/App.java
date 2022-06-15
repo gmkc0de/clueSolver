@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class App {
-//TODO: >long term<All get input methods should deal with incorrect input and allow player to try agian instead of requiroing the code to restart
+//TODO: >long term<All get input methods should deal with incorrect input and allow player to try again instead of requiring the code to restart
 	public static void main(String[] args) throws Exception {
 
 		// Game game = new Game();
@@ -42,34 +42,6 @@ public class App {
 		System.out.println(">>we have  a winner! " + game.findWinningGuess()+" after "+count +" turns<<");
 		
 
-		// 1)
-		// Ask user the size of their hand
-
-		// 2) Add to the "guess" class, the player and card that were provided to
-		// "disprove" the guess. "disprovePlayer", "disproveCard"
-		// 2a) Add to getGuessFromUser() the ability to know who disproved the guess. IF
-		// it is our guess, we also will know the card shown
-
-		// 3)
-		// After the player has their hand, create a loop that plays the game
-		// Each loop will ask the next player for a guess, and record the guess
-
-//		// get guess and print it
-//		Guess test = getGuessFromUser(players);
-//		players.get(0).getGuessList().add(test);
-//		Guess g = players.get(0).getGuessList().get(0);
-//		System.out.println(g.getSuspect() + ", " + g.getWeapon() + ", " + g.getRoom());
-
-		// deal all Cards and print each player hand
-
-//		dealCards(players, cardsList, secretCards);
-//		for(Player p: players) {
-//			System.out.println(p.getName());
-//			for (Card dealC: p.getHandList()) {
-//				System.out.println(dealC.getName());
-//			}
-//			
-//		}
 	}
 
 	// METHOD LAND
