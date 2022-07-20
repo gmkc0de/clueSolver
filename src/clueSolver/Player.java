@@ -19,6 +19,10 @@ public class Player {
 		isComputer = true;
 	}
 
+	public void addToHand(Card c) {
+		hand.add(c);
+	}
+	
 	public ArrayList<Guess> getGuessList() {
 		return guesses;
 	}

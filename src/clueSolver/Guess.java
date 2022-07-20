@@ -10,6 +10,11 @@ public class Guess {
 
 	
 	public Guess(Player made, Card sus, Card r, Card w, Player disP, Card disC ) {
+		
+		if(made == null || sus == null || r == null || w == null) {
+			throw new NullPointerException("guesser :"+made +" sus: "+sus+", room:"+r+", weapon: "+w+" should all be not null");
+		}
+		
 		suspect = sus;
 		room = r;
 		weapon = w;
@@ -40,9 +45,9 @@ public class Guess {
 
 		String s = "";
 		s += "the guess was made by: " + madeBy.getName();
-		s += ", suspect: " + suspect.getName();
-		s += ", weapon: " + weapon.getName();
-		s += ", room: " + room.getName();
+		s += ", suspect: " + (suspect != null ? suspect.getName() : "null");
+		s += ", weapon: " + (weapon != null ? weapon.getName()  : "null");
+		s += ", room: " + (room != null ? room.getName() : "null");
 		if(disprovePerson != null) {
 			s += ", disproved by: " + disprovePerson.getName();
 

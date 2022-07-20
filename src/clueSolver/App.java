@@ -8,40 +8,55 @@ import java.util.List;
 public class App {
 //TODO: >long term<All get input methods should deal with incorrect input and allow player to try again instead of requiring the code to restart
 	public static void main(String[] args) throws Exception {
+		int longest = Integer.MIN_VALUE;
+		int shortest = Integer.MAX_VALUE;
+		double average = 0;
+		// create and play 100 games
+		int numberOfGames = 5000;
+		for (int i = 0; i < numberOfGames; i++) {
+			System.out.println("Game Number: "+i);
+			Game game = Game.createTestGame();
+			game.dealCards();
+			// game.printAllCards();
+			// game.addPlayers();
+			game.printPlayers();
+			int count = 0;
+			System.out.println(i);
+			while (!game.hasWinningGuess()) {
+				System.out.println(count); 
+				count++;
+				game.takeTurn();
 
-		// Game game = new Game();
-		Game game = Game.createTestGame();
-		game.dealCards();
-		// game.printAllCards();
-		// game.addPlayers();
-		game.printPlayers();
-		int count = 0;
-		while (!game.hasWinningGuess()) {
-			count ++;
-			game.takeTurn();
+				System.out.println(game.getGuessList().get(game.getGuessList().size() - 1));
 
-			System.out.println(game.getGuessList().get(game.getGuessList().size() - 1));
+				game.findPLayerGuesses(game.getPlayers().get(0));
 
-			game.findPLayerGuesses(game.getPlayers().get(0));
+				System.out.println("my clues:");
+				ArrayList<Card> myClues = game.findPlayerClues(game.getMyPlayer());
+				for (Card c : myClues) {
+					System.out.println(c.getName());
+				}
+				System.out.println(">>----------<<");
 
-			System.out.println("my clues:");
-			ArrayList<Card> myClues = game.findPlayerClues(game.getMyPlayer());
-			for (Card c : myClues) {
-				System.out.println(c.getName());
+				System.out.println("unknow sus: ");
+				ArrayList<Card> test = game.findUnknownSuspects(game.getMyPlayer());
+				for (Card c : test) {
+					System.out.println(c.getName());
+				}
+				System.out.println(">>----------<<");
+
 			}
-			System.out.println(">>----------<<");
-
-			System.out.println("unknow sus: ");
-			ArrayList<Card> test = game.findUnknownSuspects(game.getMyPlayer());
-			for (Card c : test) {
-				System.out.println(c.getName());
+			average += count;
+			if(count > longest) {
+				longest = count;
 			}
-			System.out.println(">>----------<<");
-			
+			if(count< shortest) {
+				shortest = count;
+			}
+			System.out.println(">>we have  a winner! " + game.findWinningGuess() + " after " + count + " turns<<");
+
 		}
-		System.out.println(">>we have  a winner! " + game.findWinningGuess()+" after "+count +" turns<<");
-		
-
+		System.out.println("longest game: " +longest+ " turns, shortest game: " +shortest+" turns, avdrage number of turns: "+ average/numberOfGames);
 	}
 
 	// METHOD LAND

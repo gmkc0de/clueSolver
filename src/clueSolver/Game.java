@@ -56,11 +56,6 @@ public class Game {
 		for (Card c : game.getAllCards()) {
 			cardList.add(c);
 		}
-		for (int i = 0; i < 3; i++) {
-			int num = (int) (Math.random() * cardList.size());
-			g.getHandList().add(cardList.get(num));
-			cardList.remove(num);
-		}
 		System.out.println(">>test game created<<");
 		return game;
 	}
@@ -107,19 +102,17 @@ public class Game {
 		toDeal.remove(randomWeapon);
 		toDeal.remove(randomRoom);
 		
-		toDeal.remove(randomSuspect);
-		toDeal.remove(randomRoom);
 		// deal till there are no more cards
+		int numPlayers = players.size();
+		int numCardsDealt = 0;
 		while (toDeal.size() > 0) {
-			for (Player p : players) {
-				if (toDeal.size() > 0) {
-					int num = (int) (Math.random() * toDeal.size());
-					p.getHandList().add(toDeal.get(num));
-					toDeal.remove(num);
-				} else {
-					break;
-				}
-			}
+			int num = (int) (Math.random() * toDeal.size());
+			Card c = toDeal.remove(num);
+			// card c goes to player number[the remainder of numCardsDealt/numPlayers]
+			//this ensures it goes in a circle
+			Player p = players.get(numCardsDealt % numPlayers);
+			p.addToHand(c);
+			++numCardsDealt;
 		}
 	}
 
@@ -257,7 +250,8 @@ public class Game {
 			guessCards.add(r);
 		}
 		catch(Exception e) {
-			System.out.println(e.getLocalizedMessage());
+			System.err.println(e.getLocalizedMessage());
+			throw e;
 		}
 		// will be left null of no one disproves
 		Card disCard = null;
