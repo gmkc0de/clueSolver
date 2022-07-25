@@ -3,6 +3,7 @@ package clueSolver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class Game {
 
@@ -11,7 +12,8 @@ public class Game {
 	private Card[] secretCards;
 	private Card[] allCards;
 	private ArrayList<Guess> guessList;
-
+	private ArrayList<String> testPlayerNames;
+	
 	// allGuesses
 //TODO: do numbers four and five from dads email (the .equals ones)
 	public Game() {
@@ -40,18 +42,26 @@ public class Game {
 		allCards[18] = new Card("plum", "suspect");
 		allCards[19] = new Card("white", "suspect");
 		allCards[20] = new Card("green", "suspect");
+		
+		testPlayerNames = new ArrayList<String>();
+		testPlayerNames.add("anna");
+		testPlayerNames.add("ben");
+		testPlayerNames.add("cinna");
+		testPlayerNames.add("dane");
+		testPlayerNames.add("emily");
+		testPlayerNames.add("fiona");
 	}
 
-	public static Game createTestGame() {
+	public static Game createTestGame(int numPlayers) {
 		Game game = new Game();
-
-		Player g = new Player("g", game);
-		Player h = new Player("h", game);
-		Player j = new Player("j", game);
-		Player k = new Player("k", game);
-		game.addPlayer(g);
-		game.addPlayer(h);
-		game.addPlayer(j);
+		
+		for(int i = 0; i< numPlayers;i++ ) {
+			String  name = game.testPlayerNames.get(i);
+			//TODO: find a way t give all player variables different names
+			Player a = new Player(name, game);
+			game.addPlayer(a);
+		}
+	
 		ArrayList<Card> cardList = new ArrayList<Card>();
 		for (Card c : game.getAllCards()) {
 			cardList.add(c);

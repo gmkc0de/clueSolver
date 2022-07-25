@@ -11,11 +11,12 @@ public class App {
 		int longest = Integer.MIN_VALUE;
 		int shortest = Integer.MAX_VALUE;
 		double average = 0;
+		double averagePerPlayer = 0;
 		// create and play 100 games
 		int numberOfGames = 5000;
 		for (int i = 0; i < numberOfGames; i++) {
 			System.out.println("Game Number: "+i);
-			Game game = Game.createTestGame();
+			Game game = Game.createTestGame(2);
 			game.dealCards();
 			// game.printAllCards();
 			// game.addPlayers();
@@ -56,6 +57,7 @@ public class App {
 			System.out.println(">>we have  a winner! " + game.findWinningGuess() + " after " + count + " turns<<");
 
 		}
+		//TODO: add each players personal average  guesses
 		System.out.println("longest game: " +longest+ " turns, shortest game: " +shortest+" turns, avdrage number of turns: "+ average/numberOfGames);
 	}
 
