@@ -13,10 +13,8 @@ public class Game {
 	private Card[] allCards;
 	private ArrayList<Guess> guessList;
 	private ArrayList<String> testPlayerNames;
-	
-	// allGuesses
-//TODO: do numbers four and five from dads email (the .equals ones)
 	public Game() {
+		
 		players = new ArrayList<Player>();
 		secretCards = new Card[3];
 		guessList = new ArrayList<Guess>();
