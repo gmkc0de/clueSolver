@@ -5,10 +5,9 @@ import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-
 
 public class App {
 //TODO: >long term<All get input methods should deal with incorrect input and allow player to try again instead of requiring the code to restart
@@ -19,16 +18,14 @@ public class App {
 		int winnerGuessAverage = 0;
 		double mostToWin = Integer.MIN_VALUE;
 		int numPlayers = 5;
-		double highestWins =0;
-		double secondHighestWins = 0;
 		
-		
+
 		ArrayList<Player> allWinners = new ArrayList<Player>();
-		Map <Player, Integer> winners = new HashMap<Player, Integer>();
+		Map<Player, Integer> winners = new HashMap<Player, Integer>();
 		// create and play 5000 games
 		int numberOfGames = 5000;
-		for (int i = 0; i < numberOfGames; i++) {	
-			System.out.println("Game Number: "+i);
+		for (int i = 0; i < numberOfGames; i++) {
+			System.out.println("Game Number: " + i);
 			Game game = Game.createTestGame(numPlayers);
 			game.dealCards();
 			// game.printAllCards();
@@ -37,7 +34,7 @@ public class App {
 			int round = 0;
 			System.out.println(i);
 			while (!game.hasWinningGuess()) {
-				System.out.println(round); 
+				System.out.println(round);
 				round++;
 				game.takeTurn();
 
@@ -61,69 +58,66 @@ public class App {
 
 			}
 			// adding to variable
-			if(mostToWin < ((double)round)/numPlayers) {
-				mostToWin = ((double)round)/numPlayers;
+			if (mostToWin < ((double) round) / numPlayers) {
+				mostToWin = ((double) round) / numPlayers;
 			}
 			Player winner = game.findWinningGuess().getGuesser();
 			allWinners.add(winner);
 			Integer wins = winners.get(winner);
-			if(wins == null) {
+			if (wins == null) {
 				winners.put(winner, 1);
-			}else {
+			} else {
 				winners.put(winner, ++wins);
 			}
-			
-			//List (Linked List, ArrayList)
-			//Array ^^
-			//Map or Dictionary or HashMap 
-			//  key,value pair 
-			//  orange -> a fruit that grows in florida
-			//Set -> a collection of things (unordered, without duplicates...usually)
-			//Tree
-			
 
-			
+			// List (Linked List, ArrayList)
+			// Array ^^
+			// Map or Dictionary or HashMap
+			// key,value pair
+			// orange -> a fruit that grows in florida
+			// Set -> a collection of things (unordered, without duplicates...usually)
+			// Tree
+
 			average += round;
-			if(round > longest) {
+			if (round > longest) {
 				longest = round;
 			}
-			if(round< shortest) {
+			if (round < shortest) {
 				shortest = round;
 			}
 			winnerGuessAverage += game.findPLayerGuesses(game.findWinningGuess().getGuesser()).size();
 			System.out.println(">>we have  a winner! " + game.findWinningGuess() + " after " + round + " rounds<<");
 
 		}
-		
+
 		ArrayList<Player> winnersArray = new ArrayList<Player>(winners.keySet());
-		//TODO: sort winners here
-		for(Player p: winnersArray ) {
-			NumberFormat formatter = new DecimalFormat("#0.00");     		
-			
+		// TODO: sort winners here
+		Collections.sort(winnersArray);
+		// winnersArray.sort();
+		for (Player p : winnersArray) {
+			NumberFormat formatter = new DecimalFormat("#0.00");
+
 			double w = winners.get(p);
+
+			double percent = ((double) (w / numberOfGames)) * 100;
 		
-			double percent = ((double)(w/numberOfGames)) * 100;
-			if(w > percent) {
-				secondHighestWins = highestWins;
-				highestWins = percent;
-			}
-		    String percentString = formatter.format(percent);
-			System.out.println(p.getName() +" won "+ w +" times. which is "+ percentString +"% of the time");
-		
-			
+			String percentString = formatter.format(percent);
+			System.out.println(p.getName() + " won " + w + " times. which is " + percentString + "% of the time");
+
 		}
-		NumberFormat formatter = new DecimalFormat("#0.00"); 
-		double firstsPlayerAdvantage = highestWins - secondHighestWins;
+		NumberFormat formatter = new DecimalFormat("#0.00");
+		double firstsPlayerAdvantage = (winners.get(winnersArray.get(0))/(double)numPlayers)- (winners.get(winnersArray.get(1))/(double)numPlayers);
 		String advString = formatter.format(firstsPlayerAdvantage);
-		System.out.println("the first player has an advantage over the others by " + advString);
-		//TODO: add each players personal average  guesses
-		System.out.println("longest game: " +longest+ " turns, shortest game: " +shortest+" turns, average number of turns: "+ average/numberOfGames);
-		System.out.println("average num guesses for winner " + winnerGuessAverage/numberOfGames );
-		System.out.println("the longest it took to win was "+ mostToWin +" turns");
+		System.out.println(">>the first player has an advantage over the others by " + advString);
+		// TODO: add each players personal average guesses
+		System.out.println(">>longest game: " + longest + " turns, shortest game: " + shortest
+				+ " turns, average number of turns: " + average / numberOfGames);
+		System.out.println(">>average num guesses for winner " + winnerGuessAverage / numberOfGames);
+		System.out.println(">>the longest it took to win was " + mostToWin + " turns");
 	}
 
 	// METHOD LAND
-	
+
 	public static int getIntFromUser(String question) throws Exception {
 
 		BufferedReader in2 = new BufferedReader(new InputStreamReader(System.in));
