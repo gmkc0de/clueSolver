@@ -2,7 +2,7 @@ package clueSolver;
 
 import java.util.ArrayList;
 
-public class Player {
+public class Player implements Comparable<Player> {
 	private String name;
 	private ArrayList<Guess> guesses;
 	private ArrayList<Card> hand;
@@ -19,6 +19,10 @@ public class Player {
 		isComputer = true;
 	}
 
+	public void addToHand(Card c) {
+		hand.add(c);
+	}
+	
 	public ArrayList<Guess> getGuessList() {
 		return guesses;
 	}
@@ -97,4 +101,21 @@ public class Player {
 			return null;
 		}
 	}
+	
+	public String toString() {
+		return name;
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	@Override
+	public int compareTo(Player o) {
+		return this.getName().compareTo(o.getName());
+		
+	}
+	
+	
 }

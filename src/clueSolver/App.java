@@ -2,71 +2,118 @@ package clueSolver;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class App {
-//TODO: >long term<All get input methods should deal with incorrect input and allow player to try agian instead of requiroing the code to restart
+//TODO: >long term<All get input methods should deal with incorrect input and allow player to try again instead of requiring the code to restart
 	public static void main(String[] args) throws Exception {
+		int longest = Integer.MIN_VALUE;
+		int shortest = Integer.MAX_VALUE;
+		double average = 0;
+		int winnerGuessAverage = 0;
+		double mostToWin = Integer.MIN_VALUE;
+		int numPlayers = 5;
+		
 
-		// Game game = new Game();
-		Game game = Game.createTestGame();
-		game.dealCards();
-		// game.printAllCards();
-		// game.addPlayers();
-		game.printPlayers();
-		while (!game.hasWinningGuess()) {
+		ArrayList<Player> allWinners = new ArrayList<Player>();
+		Map<Player, Integer> winners = new HashMap<Player, Integer>();
+		// create and play 5000 games
+		int numberOfGames = 5000;
+		for (int i = 0; i < numberOfGames; i++) {
+			System.out.println("Game Number: " + i);
+			Game game = Game.createTestGame(numPlayers);
+			game.dealCards();
+			// game.printAllCards();
+			// game.addPlayers();
+			game.printPlayers();
+			int round = 0;
+			System.out.println(i);
+			while (!game.hasWinningGuess()) {
+				System.out.println(round);
+				round++;
+				game.takeTurn();
 
-			game.takeTurn();
+				System.out.println(game.getGuessList().get(game.getGuessList().size() - 1));
 
-			System.out.println(game.getGuessList().get(game.getGuessList().size() - 1));
+				game.findPLayerGuesses(game.getPlayers().get(0));
 
-			game.findPLayerGuesses(game.getPlayers().get(0));
+				System.out.println("my clues:");
+				ArrayList<Card> myClues = game.findPlayerClues(game.getMyPlayer());
+				for (Card c : myClues) {
+					System.out.println(c.getName());
+				}
+				System.out.println(">>----------<<");
 
-			System.out.println("my clues:");
-			ArrayList<Card> myClues = game.findPlayerClues(game.getMyPlayer());
-			for (Card c : myClues) {
-				System.out.println(c.getName());
+				System.out.println("unknow sus: ");
+				ArrayList<Card> test = game.findUnknownSuspects(game.getMyPlayer());
+				for (Card c : test) {
+					System.out.println(c.getName());
+				}
+				System.out.println(">>----------<<");
+
 			}
-			System.out.println(">>----------<<");
-
-			System.out.println("unknow sus: ");
-			ArrayList<Card> test = game.findUnknownSuspects(game.getMyPlayer());
-			for (Card c : test) {
-				System.out.println(c.getName());
+			// adding to variable
+			if (mostToWin < ((double) round) / numPlayers) {
+				mostToWin = ((double) round) / numPlayers;
 			}
-			System.out.println(">>----------<<");
+			Player winner = game.findWinningGuess().getGuesser();
+			allWinners.add(winner);
+			Integer wins = winners.get(winner);
+			if (wins == null) {
+				winners.put(winner, 1);
+			} else {
+				winners.put(winner, ++wins);
+			}
+
+			// List (Linked List, ArrayList)
+			// Array ^^
+			// Map or Dictionary or HashMap
+			// key,value pair
+			// orange -> a fruit that grows in florida
+			// Set -> a collection of things (unordered, without duplicates...usually)
+			// Tree
+
+			average += round;
+			if (round > longest) {
+				longest = round;
+			}
+			if (round < shortest) {
+				shortest = round;
+			}
+			winnerGuessAverage += game.findPLayerGuesses(game.findWinningGuess().getGuesser()).size();
+			System.out.println(">>we have  a winner! " + game.findWinningGuess() + " after " + round + " rounds<<");
 
 		}
 
-		// 1)
-		// Ask user the size of their hand
+		ArrayList<Player> winnersArray = new ArrayList<Player>(winners.keySet());
+		// TODO: sort winners here
+		Collections.sort(winnersArray);
+		// winnersArray.sort();
+		for (Player p : winnersArray) {
+			NumberFormat formatter = new DecimalFormat("#0.00");
 
-		// 2) Add to the "guess" class, the player and card that were provided to
-		// "disprove" the guess. "disprovePlayer", "disproveCard"
-		// 2a) Add to getGuessFromUser() the ability to know who disproved the guess. IF
-		// it is our guess, we also will know the card shown
+			double w = winners.get(p);
 
-		// 3)
-		// After the player has their hand, create a loop that plays the game
-		// Each loop will ask the next player for a guess, and record the guess
+			double percent = ((double) (w / numberOfGames)) * 100;
+		
+			String percentString = formatter.format(percent);
+			System.out.println(p.getName() + " won " + w + " times. which is " + percentString + "% of the time");
 
-//		// get guess and print it
-//		Guess test = getGuessFromUser(players);
-//		players.get(0).getGuessList().add(test);
-//		Guess g = players.get(0).getGuessList().get(0);
-//		System.out.println(g.getSuspect() + ", " + g.getWeapon() + ", " + g.getRoom());
-
-		// deal all Cards and print each player hand
-
-//		dealCards(players, cardsList, secretCards);
-//		for(Player p: players) {
-//			System.out.println(p.getName());
-//			for (Card dealC: p.getHandList()) {
-//				System.out.println(dealC.getName());
-//			}
-//			
-//		}
+		}
+		NumberFormat formatter = new DecimalFormat("#0.00");
+		double firstsPlayerAdvantage = (winners.get(winnersArray.get(0))/(double)numPlayers)- (winners.get(winnersArray.get(1))/(double)numPlayers);
+		String advString = formatter.format(firstsPlayerAdvantage);
+		System.out.println(">>the first player has an advantage over the others by " + advString);
+		// TODO: add each players personal average guesses
+		System.out.println(">>longest game: " + longest + " turns, shortest game: " + shortest
+				+ " turns, average number of turns: " + average / numberOfGames);
+		System.out.println(">>average num guesses for winner " + winnerGuessAverage / numberOfGames);
+		System.out.println(">>the longest it took to win was " + mostToWin + " turns");
 	}
 
 	// METHOD LAND
