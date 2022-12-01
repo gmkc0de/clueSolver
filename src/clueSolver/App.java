@@ -88,6 +88,9 @@ public class App {
 			winnerGuessAverage += game.findPLayerGuesses(game.findWinningGuess().getGuesser()).size();
 			System.out.println(">>we have  a winner! " + game.findWinningGuess() + " after " + round + " rounds<<");
 
+			//before we start the next game, close out this game
+			game.cleanup();
+			
 		}
 
 		ArrayList<Player> winnersArray = new ArrayList<Player>(winners.keySet());

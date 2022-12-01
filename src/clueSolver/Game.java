@@ -1,15 +1,23 @@
 package clueSolver;
 
+import java.sql.Connection;
 import java.util.ArrayList;
+
+import clueSolver.db.PlayerDb;
+import clueSolver.db.SqliteUtil;
 
 public class Game {
 
 	// TODO:review code in App.dealCards()
+	private int id;
 	private ArrayList<Player> players;
 	private Card[] secretCards;
 	private Card[] allCards;
 	private ArrayList<Guess> guessList;
 	private ArrayList<String> testPlayerNames;
+	
+	private Connection conn;
+	
 	public Game() {
 		
 		players = new ArrayList<Player>();
@@ -45,6 +53,9 @@ public class Game {
 		testPlayerNames.add("dane");
 		testPlayerNames.add("emily");
 		testPlayerNames.add("fiona");
+		
+		conn = SqliteUtil.connect();
+		id = (int)(Math.random() * 100000000);
 	}
 
 	public static Game createTestGame(int numPlayers) {
@@ -55,6 +66,8 @@ public class Game {
 			//TODO: find a way t give all player variables different names
 			Player a = new Player(name, game);
 			game.addPlayer(a);
+			PlayerDb aDb = new PlayerDb(a);
+			aDb.insert(game.getConn());
 		}
 	
 		ArrayList<Card> cardList = new ArrayList<Card>();
@@ -639,6 +652,32 @@ public class Game {
 
 	public void setPlayers(ArrayList<Player> players) {
 		this.players = players;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public Connection getConn() {
+		return conn;
+	}
+
+	public void setConn(Connection conn) {
+		this.conn = conn;
+	}
+
+	public void cleanup() {
+		try {
+			conn.close();
+		}
+		catch (Exception e) {
+			System.err.println("error closing connection of game "+getId()+" "+e.getLocalizedMessage());
+		}
+		
 	}
 
 }
