@@ -1,8 +1,10 @@
 package clueSolver;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
+import clueSolver.db.CardDb;
 import clueSolver.db.PlayerDb;
 import clueSolver.db.SqliteUtil;
 
@@ -60,19 +62,23 @@ public class Game {
 
 	public static Game createTestGame(int numPlayers) {
 		Game game = new Game();
-		
+		Connection conn = game.getConn();
 		for(int i = 0; i< numPlayers;i++ ) {
 			String  name = game.testPlayerNames.get(i);
 			//TODO: find a way t give all player variables different names
 			Player a = new Player(name, game);
 			game.addPlayer(a);
 			PlayerDb aDb = new PlayerDb(a);
-			aDb.insert(game.getConn());
+			aDb.insert(conn);
 		}
-	
+		boolean needsCards = CardDb.countCards(conn) <= 0;
 		ArrayList<Card> cardList = new ArrayList<Card>();
 		for (Card c : game.getAllCards()) {
 			cardList.add(c);
+			if (needsCards) {
+				CardDb cdb = new CardDb(c);
+				cdb.insert(conn);
+			}
 		}
 		System.out.println(">>test game created<<");
 		return game;
