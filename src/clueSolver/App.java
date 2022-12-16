@@ -23,7 +23,7 @@ public class App {
 		ArrayList<Player> allWinners = new ArrayList<Player>();
 		Map<Player, Integer> winners = new HashMap<Player, Integer>();
 		// create and play 5000 games
-		int numberOfGames = 5000;
+		int numberOfGames = 50;
 		for (int i = 0; i < numberOfGames; i++) {
 			System.out.println("Game Number: " + i);
 			Game game = Game.createTestGame(numPlayers);
@@ -70,13 +70,6 @@ public class App {
 				winners.put(winner, ++wins);
 			}
 
-			// List (Linked List, ArrayList)
-			// Array ^^
-			// Map or Dictionary or HashMap
-			// key,value pair
-			// orange -> a fruit that grows in florida
-			// Set -> a collection of things (unordered, without duplicates...usually)
-			// Tree
 
 			average += round;
 			if (round > longest) {
@@ -88,7 +81,8 @@ public class App {
 			winnerGuessAverage += game.findPLayerGuesses(game.findWinningGuess().getGuesser()).size();
 			System.out.println(">>we have  a winner! " + game.findWinningGuess() + " after " + round + " rounds<<");
 
-			//before we start the next game, close out this game
+			//before we start the next game, close out this game and save all of its data to the database
+			game.save();
 			game.cleanup();
 			
 		}

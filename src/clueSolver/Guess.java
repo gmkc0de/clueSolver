@@ -65,9 +65,21 @@ public class Guess {
 	public Card getDisprovingCard() {
 		return disproveCard;
 	}
+	public Player getDisprovePlayer() {
+		return disprovePerson;
+	}
+	public Player getMadeBy() {
+		return madeBy;
+	}
+	public void setMadeBy(Player madeBy) {
+		this.madeBy = madeBy;
+	}
 	public boolean equals(){
 		
 		return false;
+	}
+	public boolean isDisproved() {
+		return disproveCard != null;
 	}
 	
 }

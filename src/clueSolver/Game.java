@@ -1,10 +1,11 @@
 package clueSolver;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 import clueSolver.db.CardDb;
+import clueSolver.db.GameDb;
+import clueSolver.db.GuessDb;
 import clueSolver.db.PlayerDb;
 import clueSolver.db.SqliteUtil;
 
@@ -17,11 +18,11 @@ public class Game {
 	private Card[] allCards;
 	private ArrayList<Guess> guessList;
 	private ArrayList<String> testPlayerNames;
-	
+
 	private Connection conn;
-	
+
 	public Game() {
-		
+
 		players = new ArrayList<Player>();
 		secretCards = new Card[3];
 		guessList = new ArrayList<Guess>();
@@ -47,7 +48,7 @@ public class Game {
 		allCards[18] = new Card("plum", "suspect");
 		allCards[19] = new Card("white", "suspect");
 		allCards[20] = new Card("green", "suspect");
-		
+
 		testPlayerNames = new ArrayList<String>();
 		testPlayerNames.add("anna");
 		testPlayerNames.add("ben");
@@ -55,30 +56,26 @@ public class Game {
 		testPlayerNames.add("dane");
 		testPlayerNames.add("emily");
 		testPlayerNames.add("fiona");
-		
+
 		conn = SqliteUtil.connect();
-		id = (int)(Math.random() * 100000000);
+		
 	}
 
 	public static Game createTestGame(int numPlayers) {
 		Game game = new Game();
 		Connection conn = game.getConn();
-		for(int i = 0; i< numPlayers;i++ ) {
-			String  name = game.testPlayerNames.get(i);
-			//TODO: find a way t give all player variables different names
+		for (int i = 0; i < numPlayers; i++) {
+			String name = game.testPlayerNames.get(i);
+			// TODO: find a way t give all player variables different names
 			Player a = new Player(name, game);
 			game.addPlayer(a);
-			PlayerDb aDb = new PlayerDb(a);
-			aDb.insert(conn);
+
 		}
-		boolean needsCards = CardDb.countCards(conn) <= 0;
+
 		ArrayList<Card> cardList = new ArrayList<Card>();
 		for (Card c : game.getAllCards()) {
 			cardList.add(c);
-			if (needsCards) {
-				CardDb cdb = new CardDb(c);
-				cdb.insert(conn);
-			}
+
 		}
 		System.out.println(">>test game created<<");
 		return game;
@@ -112,7 +109,7 @@ public class Game {
 
 	public void dealCards() {
 		ArrayList<Card> toDeal = addAll(allCards);
-		// pick the three sescret cards	
+		// pick the three sescret cards
 		Card randomSuspect = findRandomSuspect();
 		Card randomWeapon = findRandomWeapon();
 		Card randomRoom = findRandomRoom();
@@ -120,12 +117,12 @@ public class Game {
 		secretCards[0] = randomSuspect;
 		secretCards[1] = randomWeapon;
 		secretCards[2] = randomRoom;
-		
+
 		// remove the secret cards from the cards to be dealt
 		toDeal.remove(randomSuspect);
 		toDeal.remove(randomWeapon);
 		toDeal.remove(randomRoom);
-		
+
 		// deal till there are no more cards
 		int numPlayers = players.size();
 		int numCardsDealt = 0;
@@ -133,7 +130,7 @@ public class Game {
 			int num = (int) (Math.random() * toDeal.size());
 			Card c = toDeal.remove(num);
 			// card c goes to player number[the remainder of numCardsDealt/numPlayers]
-			//this ensures it goes in a circle
+			// this ensures it goes in a circle
 			Player p = players.get(numCardsDealt % numPlayers);
 			p.addToHand(c);
 			++numCardsDealt;
@@ -272,8 +269,7 @@ public class Game {
 			guessCards.add(w);
 			r = rooms.get((int) (Math.random() * rooms.size()));
 			guessCards.add(r);
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			System.err.println(e.getLocalizedMessage());
 			throw e;
 		}
@@ -676,14 +672,47 @@ public class Game {
 		this.conn = conn;
 	}
 
+	public void save() {
+		// inserts all GameDb attributes into db
+		String winner = null; 
+		String secretSuspect = secretCards[0].getName();
+		String secretWeapon = secretCards[1].getName();
+		String secretRoom = secretCards[2].getName();
+		if(this.findWinningGuess() != null) {
+			winner = this.findWinningGuess().getMadeBy().getName();
+		}
+		GameDb g = new GameDb(winner, secretSuspect, secretRoom, secretWeapon);
+		this.id = g.insert(conn);
+		
+		// inserts this games players to db
+		for(Player p : players ) {
+		PlayerDb aDb = new PlayerDb(p);
+		aDb.insert(conn);
+		}
+		// inserts all cards into db when the db does not all ready have cards
+		boolean needsCards = CardDb.countCards(conn) <= 0;
+		if (needsCards) {
+			for (Card c : allCards) {
+				CardDb cdb = new CardDb(c);
+				cdb.insert(conn);
+			}
+		}
+		// inserts this games guesses into db
+		for(int i = 0; i < guessList.size(); ++i) {
+			GuessDb gdb = new GuessDb(guessList.get(i),i, getId());
+			gdb.insert(conn);
+			
+		}
+		
+	}
+
 	public void cleanup() {
 		try {
 			conn.close();
+		} catch (Exception e) {
+			System.err.println("error closing connection of game " + getId() + " " + e.getLocalizedMessage());
 		}
-		catch (Exception e) {
-			System.err.println("error closing connection of game "+getId()+" "+e.getLocalizedMessage());
-		}
-		
+
 	}
 
 }
