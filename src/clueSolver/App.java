@@ -12,6 +12,9 @@ import java.util.Map;
 public class App {
 //TODO: >long term<All get input methods should deal with incorrect input and allow player to try again instead of requiring the code to restart
 	public static void main(String[] args) throws Exception {
+		
+		L.CURRENT_LEVEL = L.INFO;
+		
 		int longest = Integer.MIN_VALUE;
 		int shortest = Integer.MAX_VALUE;
 		double average = 0;
@@ -23,38 +26,44 @@ public class App {
 		ArrayList<Player> allWinners = new ArrayList<Player>();
 		Map<Player, Integer> winners = new HashMap<Player, Integer>();
 		// create and play 5000 games
-		int numberOfGames = 5000;
+		int numberOfGames = 1000;
 		for (int i = 0; i < numberOfGames; i++) {
-			System.out.println("Game Number: " + i);
+			if(i > 0 && i % 10 == 0) {
+				System.out.print(".");
+			}
+			if(i > 0 && i % 100 == 0) {
+				System.out.println();
+			}
+			L.i("Game Number: " + i);
 			Game game = Game.createTestGame(numPlayers);
 			game.dealCards();
 			// game.printAllCards();
 			// game.addPlayers();
-			game.printPlayers();
+			//game.printPlayers();
 			int round = 0;
-			System.out.println(i);
+			L.i(i);
 			while (!game.hasWinningGuess()) {
-				System.out.println(round);
+				L.i(round);
 				round++;
 				game.takeTurn();
 
-				System.out.println(game.getGuessList().get(game.getGuessList().size() - 1));
+				L.i(game.getGuessList().get(game.getGuessList().size() - 1));
 
 				game.findPLayerGuesses(game.getPlayers().get(0));
 
-				System.out.println("my clues:");
+				L.i("my clues:");
 				ArrayList<Card> myClues = game.findPlayerClues(game.getMyPlayer());
 				for (Card c : myClues) {
-					System.out.println(c.getName());
+					L.i(c.getName());
 				}
-				System.out.println(">>----------<<");
+				L.i(">>----------<<");
 
-				System.out.println("unknow sus: ");
+				L.i("unknow sus: ");
 				ArrayList<Card> test = game.findUnknownSuspects(game.getMyPlayer());
 				for (Card c : test) {
-					System.out.println(c.getName());
+					L.i(c.getName());
 				}
-				System.out.println(">>----------<<");
+				L.i(">>----------<<");
 
 			}
 			// adding to variable
@@ -70,13 +79,6 @@ public class App {
 				winners.put(winner, ++wins);
 			}
 
-			// List (Linked List, ArrayList)
-			// Array ^^
-			// Map or Dictionary or HashMap
-			// key,value pair
-			// orange -> a fruit that grows in florida
-			// Set -> a collection of things (unordered, without duplicates...usually)
-			// Tree
 
 			average += round;
 			if (round > longest) {
@@ -86,10 +88,14 @@ public class App {
 				shortest = round;
 			}
 			winnerGuessAverage += game.findPLayerGuesses(game.findWinningGuess().getGuesser()).size();
-			System.out.println(">>we have  a winner! " + game.findWinningGuess() + " after " + round + " rounds<<");
+			L.i(">>we have  a winner! " + game.findWinningGuess() + " after " + round + " rounds<<");
 
+			//before we start the next game, close out this game and save all of its data to the database
+			game.save();
+			game.cleanup();
+			
 		}
-
+		System.out.println();
 		ArrayList<Player> winnersArray = new ArrayList<Player>(winners.keySet());
 		// TODO: sort winners here
 		Collections.sort(winnersArray);

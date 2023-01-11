@@ -9,6 +9,7 @@ public class Player implements Comparable<Player> {
 	private Game currentGame;
 	private boolean isComputer;
 	public ArrayList<Guess> notePad;
+	private int turnOrder;
 
 	public Player(String name, Game g) {
 		this.name = name;
@@ -17,10 +18,14 @@ public class Player implements Comparable<Player> {
 		notePad = new ArrayList<Guess>();
 		currentGame = g;
 		isComputer = true;
+		
 	}
 
 	public void addToHand(Card c) {
 		hand.add(c);
+	}
+	public boolean isComputer() {
+		return isComputer;
 	}
 	
 	public ArrayList<Guess> getGuessList() {
@@ -30,9 +35,11 @@ public class Player implements Comparable<Player> {
 	public String getName() {
 		return name;
 	}
-	public boolean isComputer() {
-		return isComputer;
+	
+	public int getTurnOrder() {
+		return turnOrder;
 	}
+	
 
 	public ArrayList<Card> getHandList() {
 		return hand;
@@ -94,10 +101,10 @@ public class Player implements Comparable<Player> {
 					return c;
 				}
 			}
-			System.out.println(">>you have disproved "+ g.getGuesser().getName()+"'s guess with the "+ canDisprove.get(0).getName()+" card"+"<<");
+			L.i(">>you have disproved "+ g.getGuesser().getName()+"'s guess with the "+ canDisprove.get(0).getName()+" card"+"<<");
 			return canDisprove.get(0);
 		}else {
-			System.out.println(">>you cannot disprove this guess<<");
+			L.i(">>you cannot disprove this guess<<");
 			return null;
 		}
 	}
@@ -116,6 +123,17 @@ public class Player implements Comparable<Player> {
 		return this.getName().compareTo(o.getName());
 		
 	}
+
+	public void setOrder(int order) {
+		  turnOrder = order;
+		
+	}
+	public int getOrder() {
+		return turnOrder;
+		
+	}
+
+	
 	
 	
 }
