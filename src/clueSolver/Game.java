@@ -13,7 +13,7 @@ public class Game {
 
 	// TODO:review code in App.dealCards()
 	private int id;
-	private ArrayList<Player> players;
+	private static ArrayList<Player> players;
 	private Card[] secretCards;
 	private Card[] allCards;
 	private ArrayList<Guess> guessList;
@@ -58,7 +58,7 @@ public class Game {
 		testPlayerNames.add("fiona");
 
 		conn = SqliteUtil.connect();
-		
+
 	}
 
 	public static Game createTestGame(int numPlayers) {
@@ -68,8 +68,9 @@ public class Game {
 			String name = game.testPlayerNames.get(i);
 			// TODO: find a way t give all player variables different names
 			Player a = new Player(name, game);
-			game.addPlayer(a);
-
+			int order = game.addPlayer(a);
+			a.setOrder(order);
+			
 		}
 
 		ArrayList<Card> cardList = new ArrayList<Card>();
@@ -77,7 +78,7 @@ public class Game {
 			cardList.add(c);
 
 		}
-		System.out.println(">>test game created<<");
+		L.i(">>test game created<<");
 		return game;
 	}
 
@@ -290,7 +291,7 @@ public class Game {
 		}
 		// if the guess was not disproved
 		if (disprover == null) {
-			System.out.println(">>no one could disprove this guess<<");
+			L.i(">>no one could disprove this guess<<");
 			return new Guess(guesser, s, r, w, null, null);
 		} else {
 			// if the guess was disproved
@@ -429,9 +430,9 @@ public class Game {
 		return added;
 	}
 
-	public void addPlayer(Player p) {
+	public int addPlayer(Player p) {
 		getPlayers().add(p);
-
+		return getPlayers().size() - 1;
 	}
 
 	public void addGuess(Guess g) {
@@ -605,7 +606,7 @@ public class Game {
 		return allCards;
 	}
 
-	public ArrayList<Player> getPlayers() {
+	public static ArrayList<Player> getPlayers() {
 		return players;
 	}
 
@@ -659,6 +660,28 @@ public class Game {
 	public int getId() {
 		return id;
 	}
+	//returns the index of a player on the players list
+	public static int getPlayerOrder(String name) {
+		int order;
+		ArrayList<Player> list = getPlayers();
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i).getName() == name) {
+				order = i;
+				return order;
+			}
+		}
+		return -1;
+
+	}
+
+	
+	public static Player findPLayerIndexOf(int num){
+		ArrayList<Player> players = getPlayers();
+		if(num <= players.size()) {
+			return players.get(num);
+		}
+		return null;
+	}
 
 	public void setId(int id) {
 		this.id = id;
@@ -674,20 +697,20 @@ public class Game {
 
 	public void save() {
 		// inserts all GameDb attributes into db
-		String winner = null; 
+		String winner = null;
 		String secretSuspect = secretCards[0].getName();
 		String secretWeapon = secretCards[1].getName();
 		String secretRoom = secretCards[2].getName();
-		if(this.findWinningGuess() != null) {
+		if (this.findWinningGuess() != null) {
 			winner = this.findWinningGuess().getMadeBy().getName();
 		}
 		GameDb g = new GameDb(winner, secretSuspect, secretRoom, secretWeapon);
 		this.id = g.insert(conn);
-		
+
 		// inserts this games players to db
-		for(Player p : players ) {
-		PlayerDb aDb = new PlayerDb(p);
-		aDb.insert(conn);
+		for (Player p : players) {
+			PlayerDb aDb = new PlayerDb(p);
+			aDb.insert(conn);
 		}
 		// inserts all cards into db when the db does not all ready have cards
 		boolean needsCards = CardDb.countCards(conn) <= 0;
@@ -698,12 +721,12 @@ public class Game {
 			}
 		}
 		// inserts this games guesses into db
-		for(int i = 0; i < guessList.size(); ++i) {
-			GuessDb gdb = new GuessDb(guessList.get(i),i, getId());
+		for (int i = 0; i < guessList.size(); ++i) {
+			GuessDb gdb = new GuessDb(guessList.get(i), i, getId());
 			gdb.insert(conn);
-			
+
 		}
-		
+
 	}
 
 	public void cleanup() {
@@ -714,5 +737,7 @@ public class Game {
 		}
 
 	}
+
+	
 
 }
