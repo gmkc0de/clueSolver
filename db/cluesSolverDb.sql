@@ -116,3 +116,5 @@ create table game(
 -- INSERT INTO card (card_name, card_type) VALUES ( 'weapon', 'candlestick');
 -- INSERT INTO card (card_name, card_type) VALUES ( 'weapon', 'knife');
 -- INSERT INTO card (card_name, card_type) VALUES ( 'weapon', 'lead pipe');
+
+.quit

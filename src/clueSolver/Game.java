@@ -81,6 +81,8 @@ public class Game {
 		L.i(">>test game created<<");
 		return game;
 	}
+	
+	
 
 	public Player nextPlayersTurn() {
 		Player nextPlayer = null;
