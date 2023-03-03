@@ -46,16 +46,20 @@
 -- Many to Many
 drop table if exists player;
 create table player(
+	id integer primary key,
 	name text,
 	game_id integer,
 	is_computer boolean,
 	turn_order integer
 );
 drop table if exists player_hand;
-create table player_hand(
+drop table if exists player_card;
+create table player_card(
+	game_id integer,
 	player_id integer,
-	card_id integer
+	card_name text
 );
+
 
 drop table if exists card;
 create table card(
@@ -116,3 +120,5 @@ create table game(
 -- INSERT INTO card (card_name, card_type) VALUES ( 'weapon', 'candlestick');
 -- INSERT INTO card (card_name, card_type) VALUES ( 'weapon', 'knife');
 -- INSERT INTO card (card_name, card_type) VALUES ( 'weapon', 'lead pipe');
+
+.quit

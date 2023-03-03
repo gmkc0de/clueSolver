@@ -2,5 +2,6 @@
 .git
 .project
 .settings
+*.sqlite-journal
 bin/*
 /bin/

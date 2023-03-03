@@ -7,43 +7,24 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import clueSolver.Game;
+import clueSolver.Player;
 
 public class ReportApp {
 	public Connection conn;
+	public static final String FILTER_TABLE_NAME = "working_games";
 
-	/*
-	 * anna won 259.0 times. which is 25.90% of the time ben won 259.0 times. which
-	 * is 25.90% of the time cinna won 212.0 times. which is 21.20% of the time dane
-	 * won 138.0 times. which is 13.80% of the time emily won 132.0 times. which is
-	 * 13.20% of the time >>the first player has an advantage over the others by
-	 * 0.00 >>longest game: 71 turns, shortest game: 1 turns, average number of
-	 * turns: 39.725 >>average num guesses for winner 8 >>the longest it took to win
-	 * was 14.2 turns
-	 */
-
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 		Connection dbConn = SqliteUtil.connect();
 		ReportApp n = new ReportApp(dbConn);
-		System.out.println("longest game: " + n.countLongestGame() + " turns " + ", shortest game: "
-				+ n.countShortestGame() + ", turns average game: " + n.averageGameSize());
-		System.out.println("average num guesses for winner " + n.averageTurnsToWin());
-		System.out.println("the longest it took to win was "
-				+ n.findPlayersNumGuesses(n.findLongestWinner(), n.findLongestGameId()) + " turns");
-		Map<String, Integer> wins = n.getWinsPerPLayer();
-		ArrayList<String> winners = ReportApp.setToSortedList(wins.keySet());
-		for (String winner : winners) {
-			Integer numWins = wins.get(winner);
-			String output = String.format("%s won %s times which is %.2f percent of the time", winner, numWins,
-					(((double) numWins) / n.totalGames()) * 100);
-			System.out.println(output);
-
-		}
-		System.out.println("the first player advantage was "  );
+		n.createFilterTableForGamesWithNumPlayers(3);
+		n.printAllReports();
 
 	}
 
@@ -51,50 +32,148 @@ public class ReportApp {
 		conn = inConn;
 	}
 
-	// select count(*), game_id from guess group by game_id order by count(*) desc
-	// limit 1;
-	public int countLongestGame() {
-		try {
-			Statement statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery(
-					"select count(*) as total, game_id from guess group by game_id order by count(*) desc limit 1");
-			while (rs.next()) {
-				// read the result set
+	private void printAllReports() {
 
-				int total = rs.getInt("total");
-				return total;
+		Integer numPlayers = 3;
+		while (numPlayers <= 7) {
+			boolean useFilter = numPlayers != 7;
+			createFilterTableForGamesWithNumPlayers(numPlayers);
+			System.out.println("");
+			if (useFilter) {
+				System.out.println("--" + numPlayers.toString() + " Player Games Report--");
+			} else {
+				System.out.println("-- All Player Games Report--");
 			}
-			rs.close();
-			statement.close();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			System.out.println("total games in this section " + (int) totalGames(useFilter));
+			System.out.println("the longest game took: " + countLongestGame(useFilter) + " turns ");
+			System.out.println("the shortest game took: " + countShortestGame(useFilter) + " turns ");
+			System.out.println(String.format("the average turns to win was: %.2f%%", averageTurnsToWin(useFilter)));
+			System.out.println("the longest it took to win was: "
+					+ findPlayersNumGuesses(findLongestWinner(useFilter), findLongestGame(useFilter), useFilter)
+					+ " turns");
+			System.out.println("total num guesses: " + (int) totalGuesses(useFilter));
+			System.out.println("wins per player:  " + getWinsPerPLayer(useFilter).stream()
+					.sorted(Comparator.reverseOrder()).collect(Collectors.toList()));
+
+			System.out.println(
+					String.format("the first player advantage was: %.2f%%", calcFirstPLayerAdvantage(useFilter)));
+			System.out.println(
+					String.format("the last player disadvantage was:  %.2f%% ", calcLastPlayerDisadvantage(useFilter)));
+			// System.out.println(String.format(" the most cards advantage was %.2f ", calcMostCardsAdvantage(useFilter)));
+			numPlayers++;
 		}
-		return -1;
+
 	}
 
-	public int countShortestGame() {
-		try {
-			Statement statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery(
-					"select count(*) as total, game_id from guess group by game_id order by count(*) asc limit 1");
-			while (rs.next()) {
-				// read the result set
-
-				int total = rs.getInt("total");
-				return total;
+	private Object calcMostCardsAdvantage(boolean useFilterTable) {
+		String whereClause = "";
+		PlayerDb mostCards;
+		PlayerDb secondMostCards;
+		int counter = 0;
+		if (useFilterTable) {
+			whereClause = " where p.game_id in (select id from " + FILTER_TABLE_NAME + ") ";
+		}
+		String sqlOrder = " group by p.name, p.id, p.game_id order by count(*) desc ";
+		String sql = "select p.name, p.id, p.game_id, count(*) from player p inner join player_card pc " + whereClause + sqlOrder;
+		
+		
+		
+		try(Statement statement = conn.createStatement(); ResultSet rs = statement.executeQuery(sql)){
+			
+			while(rs.next() && counter < 2) {
+				
+				if (counter == 0) {
+					mostCards = PlayerDb.findPlayerById(rs.getInt(2),conn).findThisPlayersWins();
+				}
+				if(counter == 0) {
+					secondMostCards = PlayerDb.findPlayerById(rs.getInt(2),conn);
+				}
+				counter ++;
 			}
-			rs.close();
-			statement.close();
+			
+			
+			
+			
+		}catch(SQLException e) {
+			throw new RuntimeException(e);
+		}
+		
+		
+		return null;
+	}
+
+	// select count(*), game_id from guess group by game_id order by count(*) desc
+	// limit 1;
+	public int countLongestGame(boolean useFilterTable) {
+
+		int total = -1;
+		String whereClause = "";
+
+		if (useFilterTable) {
+			whereClause = " where game_id in (select id from " + FILTER_TABLE_NAME + ") ";
+		}
+		String finalSql = "select count(*) as total, game_id " + "from guess " + whereClause + "group by game_id "
+				+ "order by count(*) desc " + "limit 1";
+
+		try (Statement statement = conn.createStatement(); ResultSet rs = statement.executeQuery(finalSql)) {
+			if (rs.next()) {
+				// read the result set
+				total = rs.getInt("total");
+			}
+			return total;
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		return -1;
+	}
+//	" select count(*) as total, game_id from guess " 
+//	+ whereClause 
+//	+ " group by game_id order by count(*) asc limit 1 ");
+
+	public int countShortestGame(boolean useFilterTable) {
+		int total = -1;
+		String whereClause = "";
+		if (useFilterTable) {
+			whereClause = " where game_id in (select id from " + FILTER_TABLE_NAME + ") ";
+		}
+		String query = " select count(*) as total, game_id from guess " + whereClause
+				+ " group by game_id order by count(*) asc limit 1 ";
+
+		try (Statement statement = conn.createStatement(); ResultSet rs = statement.executeQuery(query);) {
+			if (rs.next()) {
+				// read the result set
+				total = rs.getInt("total");
+			}
+			return total;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public double countTotalWinnersInGame(boolean useFilterTable) {
+		String whereClause = "";
+		double winners = -1;
+		if (useFilterTable) {
+			whereClause = " where id in (select id from " + FILTER_TABLE_NAME + ") ";
+		}
+		String query = "select count(winner) as winners from game " + whereClause;
+		try (Statement statement = conn.createStatement(); ResultSet rs = statement.executeQuery(query);) {
+			if (rs.next()) {
+				// read the result set
+				winners = rs.getInt("winners");
+				return winners;
+			}
+
+			return winners;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	// get all the guesses made and divide by num games
-	public double averageGameSize() {
-		double guessNum = totalGuesses();
-		double games = totalGames();
+	public double averageGameSize(boolean useFilterTable) {
+
+		double guessNum = totalGuesses(useFilterTable);
+		double games = totalGames(useFilterTable);
 
 		return guessNum / games;
 	}
@@ -102,12 +181,17 @@ public class ReportApp {
 	// add up all the guesses made by a winning player then divide by number of
 	// winning players
 	// retunrs average num guesses for winners
-	public double averageTurnsToWin() {
-		try {
-			int total = 0;
-			Statement statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery(
-					"select count(*) as total, guesser_name, game_id from guess where (guesser_name, game_id) in (select winner, id from game) group by guesser_name, game_id;");
+	public double averageTurnsToWin(boolean useFilterTable) {
+
+		double total = 0;
+		String whereClause = "";
+		if (useFilterTable) {
+			whereClause = " game_id in (select id from " + FILTER_TABLE_NAME + ") and ";
+		}
+
+		String query = "select count(*) as total, guesser_name, game_id from guess where " + whereClause
+				+ " (guesser_name, game_id) in (select winner, id from game) group by guesser_name, game_id;";
+		try (Statement statement = conn.createStatement(); ResultSet rs = statement.executeQuery(query);) {
 			while (rs.next()) {
 				// read the result set
 
@@ -115,142 +199,200 @@ public class ReportApp {
 
 			}
 
-			rs.close();
-			statement.close();
-			return total / countTotalWinners();
+			return total / countTotalWinnersInGame(useFilterTable);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 
 	}
 
-	public int findPlayersNumGuesses(String nm, int gId) {
+	public int findPlayersNumGuesses(String nm, int gId, boolean useFilterTable) {
 		// find the number of turns it took a player to win a certain game
 		try {
 			String name = nm;
 			int gameId = gId;
-			String sql = "select count(*) as count from guess where guesser_name = ? and game_id = ? order by guess_number desc limit 1";
-			PreparedStatement statement = conn.prepareStatement(sql);
-			statement.setString(1, name);
-			statement.setInt(2, gameId);
-			ResultSet rs = statement.executeQuery();
-			while (rs.next()) {
-				int num = rs.getInt("count");
-				return num;
-
+			String whereClause = "";
+			if (useFilterTable) {
+				whereClause = " game_id in (select id from " + FILTER_TABLE_NAME + ") and ";
 			}
+			String sql = "select count(*) as count from guess where " + whereClause
+					+ " guesser_name = ? and game_id = ? order by guess_number desc limit 1";
+
+			try (PreparedStatement statement = conn.prepareStatement(sql);) {
+
+				statement.setString(1, name);
+				statement.setInt(2, gameId);
+				try (ResultSet rs = statement.executeQuery();) {
+					if (rs.next()) {
+						int num = rs.getInt("count");
+						return num;
+
+					}
+				}
+			}
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 		return 0;
 	}
 
-	public String findLongestWinner() {
+	public String findLongestWinner(boolean useFilterTable) {
 		try {
-			int gameId = findLongestGameId();
-			String sql = "select guesser_name from guess where game_id = ? order by guess_number desc limit 1";
-			PreparedStatement statement = conn.prepareStatement(sql);
-			statement.setInt(1, gameId);
-			ResultSet rs = statement.executeQuery();
-			while (rs.next()) {
-				String name = rs.getString("guesser_name");
-				return name;
 
+			int gameId = findLongestGame(useFilterTable);
+			String whereClause = "";
+			if (useFilterTable) {
+				whereClause = " game_id in (select id from " + FILTER_TABLE_NAME + ") and ";
 			}
+			String sql = "select guesser_name from guess where " + whereClause
+					+ " game_id = ? order by guess_number desc limit 1";
+			try (PreparedStatement statement = conn.prepareStatement(sql);) {
+
+				statement.setInt(1, gameId);
+				try (ResultSet rs = statement.executeQuery();) {
+					if (rs.next()) {
+						String name = rs.getString("guesser_name");
+						return name;
+
+					}
+				}
+			}
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 		return null;
 	}
 
-	public int findLongestGameId() {
-		try {
-			Statement statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery(
-					"select count(*) as total, game_id from guess group by game_id order by count(*) desc limit 1");
-			while (rs.next()) {
-				// read the result set
+	public int findLongestGame(boolean useFilterTable) {
+		int gameId = -1;
+		String whereClause = "";
+		if (useFilterTable) {
+			whereClause = " where game_id in (select id from " + FILTER_TABLE_NAME + ")";
+		}
 
-				int gameId = rs.getInt("game_id");
+		String query = "select count(*) as total, game_id from guess " + whereClause
+				+ "group by game_id order by count(*) desc limit 1";
+		try (Statement statement = conn.createStatement(); ResultSet rs = statement.executeQuery(query);) {
+			if (rs.next()) {
+				gameId = rs.getInt("game_id");
 				return gameId;
 			}
-			rs.close();
-			statement.close();
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		return -1;
+		return gameId;
 	}
 
-	public int findShortestGame() {
-		try {
-			Statement statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery(
-					"select count(*) as total, game_id from guess group by game_id order by count(*) asc limit 1");
+	public int findShortestGameId(boolean useFilterTable) {
+		int gameId = -1;
+		String whereClause = "";
+		if (useFilterTable) {
+			whereClause = " where game_id in (select id from " + FILTER_TABLE_NAME + ")";
+		}
+		String query = "select count(*) as total, game_id from guess " + whereClause
+				+ " group by game_id order by count(*) asc limit 1";
+		try (Statement statement = conn.createStatement(); ResultSet rs = statement.executeQuery(query);) {
 			while (rs.next()) {
 				// read the result set
 
-				int gameId = rs.getInt("game_id");
+				gameId = rs.getInt("game_id");
 				return gameId;
 			}
-			rs.close();
-			statement.close();
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		return -1;
+		return gameId;
 	}
 
-	public double totalGuesses() {
+	// Find a list of all games with three players
+	//
+	public Map<Integer, Integer> findAllGamesWithNumPlayers(int num, boolean useFilterTable) {
+
+		String whereClause = "";
+		if (useFilterTable) {
+			whereClause = " where game_id in (select id from " + FILTER_TABLE_NAME + ")";
+		}
+		Map<Integer, Integer> results = new HashMap<Integer, Integer>();
+		String query = ("Select game_id, count(*) as play_num  from player " + whereClause
+				+ " group by game_id  having  play_num = ? ");
+		try (PreparedStatement statement = conn.prepareStatement(query);) {
+
+			statement.setInt(1, num);
+			try (ResultSet rs = statement.executeQuery();) {
+				while (rs.next()) {
+					int game_id = rs.getInt("game_id");
+					int play_num = rs.getInt("play_num");
+					results.put(game_id, play_num);
+
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		return results;
+	}
+
+	// create a table in sql with only the games that have the correct num players
+	public void createFilterTableForGamesWithNumPlayers(int num) {
+		try (Statement dropStatement = conn.createStatement();) {
+			dropStatement.execute("drop table if exists working_games");
+			dropStatement.close();
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+		String sql = ("create table " + FILTER_TABLE_NAME
+				+ " as select id from game where id in (select game_id from player group by game_id having count(*) = ?) ");
+
+		try (PreparedStatement statement = conn.prepareStatement(sql);) {
+			statement.setInt(1, num);
+			statement.execute();
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public double totalGuesses(boolean useFilterTable) {
 		double guessNum;
-		try {
-			Statement statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery("select count(*) as guessNum from guess ");
+		String whereClause = "";
+		if (useFilterTable) {
+			whereClause = " where game_id in (select id from " + FILTER_TABLE_NAME + ")";
+		}
+		String sql = "select count(*) as guessNum from guess " + whereClause;
+
+		try (Statement statement = conn.createStatement(); ResultSet rs = statement.executeQuery(sql);) {
 			while (rs.next()) {
 				// read the result set
 				guessNum = rs.getInt("guessNum");
 				return guessNum;
 			}
 
-			rs.close();
-			statement.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 		return -1;
 	}
 
-	public double totalGames() {
+	public double totalGames(boolean useFilterTable) {
 		double games;
 		try {
-			Statement statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery("select count(*) as games from game ");
-			while (rs.next()) {
-				// read the result set
-				games = rs.getInt("games");
-				return games;
+			String whereClause = "";
+			if (useFilterTable) {
+				whereClause = " where id in (select id from " + FILTER_TABLE_NAME + ")";
 			}
-
-			rs.close();
-			statement.close();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		return -1;
-	}
-
-	public double countTotalWinners() {
-		try {
-			Statement statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery("select count(winner) as winners from game");
-			while (rs.next()) {
-				// read the result set
-				double winners = rs.getInt("winners");
-				return winners;
+			try (Statement statement = conn.createStatement();
+					ResultSet rs = statement.executeQuery("select count(*) as games from game " + whereClause);) {
+				while (rs.next()) {
+					// read the result set
+					games = rs.getInt("games");
+					return games;
+				}
 			}
-
-			rs.close();
-			statement.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -258,16 +400,23 @@ public class ReportApp {
 	}
 
 	// select count(*), guesser_name from guess group by guesser_name;
-	public Map<String, Integer> getWinsPerPLayer() {
-		Map<String, Integer> result = new HashMap<String, Integer>();
-		try {
-			String sql = "select count(*) as count, winner from game group by winner";
-			PreparedStatement statement = conn.prepareStatement(sql);
-			ResultSet rs = statement.executeQuery();
+	public List<PlayerWins> getWinsPerPLayer(boolean useFilterTable) {
+		double totalGames = totalGames(useFilterTable);
+		List<PlayerWins> result = new ArrayList<PlayerWins>();
+		String whereClause = "";
+		
+		if (useFilterTable) {
+			whereClause = " where id in (select id from " + FILTER_TABLE_NAME + ")";
+		}
+		String sql = "select count(*) as count, winner from game " + whereClause + " group by winner ";
+		
+		try (PreparedStatement statement = conn.prepareStatement(sql); ResultSet rs = statement.executeQuery();) {
+
 			while (rs.next()) {
 				int count = rs.getInt("count");
 				String name = rs.getString("winner");
-				result.put(name, count);
+				PlayerWins data = new PlayerWins(name, count, totalGames);
+				result.add(data);
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -275,40 +424,111 @@ public class ReportApp {
 		return result;
 	}
 
-	public int getLongestGameId() {
-		try {
-			Statement statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery("select id from game order by id desc limit 1");
+	public int getLongestGameId(boolean useFilterTable) {
+
+		String whereClause = "";
+		if (useFilterTable) {
+			whereClause = " where id in (select id from " + FILTER_TABLE_NAME + ")";
+		}
+		String sql = "select id from game " + whereClause + " order by id desc limit 1";
+		try (Statement statement = conn.createStatement(); ResultSet rs = statement.executeQuery(sql)) {
 			while (rs.next()) {
 				// read the result set
 
 				int id = rs.getInt("id");
 				return id;
 			}
-			rs.close();
-			statement.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 		return -1;
 	}
 
-	public double calcFirstPLayerAdvantage() {
-		try {
-			Statement statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery("select id from game order by id desc limit 1");
-			while (rs.next()) {
-				// read the result set
+	// Write a query that finds all the first turn players that win and compare that
+	// to second turn third turn etc
+	// to calc first player adv
 
-				int id = rs.getInt("id");
-				return id;
+	public double calcFirstPLayerAdvantage(boolean useFilterTable) {
+		List<Integer> numWinsList = new ArrayList<Integer>();
+		int totalGames = 0;
+		String whereClause = "";
+		if (useFilterTable) {
+			whereClause = " and game_id in (select id from " + FILTER_TABLE_NAME + ")";
+		}
+//   wins  turn_order
+//		34|0
+//		21|1
+//		21|2
+//		14|3
+//		1|4
+//		9|5
+
+		String sql = "select count(*) as wins, turn_order from player where (name, game_id) in (select winner, id from game) "
+				+ whereClause + " group by turn_order order by turn_order asc";
+		try (PreparedStatement statement = conn.prepareStatement(sql); ResultSet rs = statement.executeQuery();) {
+
+			while (rs.next()) {
+				numWinsList.add(rs.getInt("wins"));
 			}
-			rs.close();
-			statement.close();
+			if (numWinsList.size() > 1) {
+				double firstPWins = (double) numWinsList.get(0);
+				double secondPWins = (double) numWinsList.get(1);
+
+				for (int wins : numWinsList) {
+					totalGames += wins;
+				}
+//			
+				return ((firstPWins - secondPWins) / totalGames) * 100;
+			} else {
+				return -1;
+			}
+			// returns min value instead of -1 to avoid being confused for a proper answer
+			// if there is ever a case where the advantage should be negative
+			// (such as when the first player has less wins than the second)
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		return -1;
+	}
+
+	public double calcLastPlayerDisadvantage(boolean useFilterTable) {
+		List<Integer> numWinsList = new ArrayList<Integer>();
+		int totalGames = 0;
+		String whereClause = "";
+		if (useFilterTable) {
+			whereClause = " and game_id in (select id from " + FILTER_TABLE_NAME + ")";
+		}
+		String sql = "select count(*) as wins, turn_order from player where (name, game_id) in (select winner, id from game) "
+				+ whereClause + " group by turn_order order by turn_order asc";
+		try (PreparedStatement statement = conn.prepareStatement(sql); ResultSet rs = statement.executeQuery();) {
+
+			while (rs.next()) {
+				numWinsList.add(rs.getInt("wins"));
+			}
+
+			if (numWinsList.size() > 1) {
+				double firstPWins = (double) numWinsList.get(0);
+				double lastPWins = (double) numWinsList.get(numWinsList.size() - 1);
+
+				for (int wins : numWinsList) {
+					totalGames += wins;
+				}
+				return ((lastPWins - firstPWins) / totalGames) * 100;
+			} else {
+				return -1;
+			}
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+	
+	public ArrayList<Double> findWinsPercentages(boolean useFilterTable){
+		ArrayList<Double> perc = new ArrayList<Double>();
+		String sql = "";
+		String whereClause = " and game_id in (select id from " + FILTER_TABLE_NAME + ")";
+		return perc;
 	}
 
 	public static ArrayList<String> setToSortedList(Set<String> set) {
@@ -317,4 +537,7 @@ public class ReportApp {
 		Collections.sort(list);
 		return list;
 	}
+	
+	
+
 }

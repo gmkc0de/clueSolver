@@ -27,7 +27,7 @@ public class GameDb {
 	}
 
 	public GameDb(Player w, Card secretSus, Card secertRm, Card secretWpn) {
-		winner = w.getName();
+		winner = w.getName(); 
 		secretSuspect = secretSus.getName();
 		secretRoom = secertRm.getName();
 		secretWeapon = secretWpn.getName();
