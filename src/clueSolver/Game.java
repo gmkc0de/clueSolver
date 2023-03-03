@@ -2,6 +2,7 @@ package clueSolver;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.List;
 
 import clueSolver.db.CardDb;
 import clueSolver.db.GameDb;
@@ -11,14 +12,13 @@ import clueSolver.db.SqliteUtil;
 
 public class Game {
 
-	// TODO:review code in App.dealCards()
+	
 	private int id;
-	private static ArrayList<Player> players;
+	private ArrayList<Player> players;
 	private Card[] secretCards;
 	private Card[] allCards;
 	private ArrayList<Guess> guessList;
 	private ArrayList<String> testPlayerNames;
-
 	private Connection conn;
 
 	public Game() {
@@ -134,11 +134,15 @@ public class Game {
 			Card c = toDeal.remove(num);
 			// card c goes to player number[the remainder of numCardsDealt/numPlayers]
 			// this ensures it goes in a circle
-			Player p = players.get(numCardsDealt % numPlayers);
+			int playerIndex = numCardsDealt % numPlayers;
+			Player p = players.get(playerIndex);
 			p.addToHand(c);
+			//insert(p.getName());
 			++numCardsDealt;
 		}
 	}
+	
+	
 
 	public void oldDealCards() {
 		// deal the three secret cards
@@ -163,7 +167,7 @@ public class Game {
 			for (Player p : players) {
 				if (availibleCards.size() != 0) {
 					int num = (int) (Math.random() * availibleCards.size());
-					p.getHandList().add(availibleCards.get(num));
+					p.getHand().add(availibleCards.get(num));
 					availibleCards.remove(num);
 				}
 			}
@@ -191,7 +195,7 @@ public class Game {
 			String nameOfCard = App.getStringInputFromUser("please enter a cards name.");
 			Card thisCard = getMatchingCard(nameOfCard);
 			if (thisCard != null) {
-				getMyPlayer().getHandList().add(thisCard);
+				getMyPlayer().getHand().add(thisCard);
 				System.out.println(">succesfuly added<");
 			} else {
 				System.out.println("invalid card please try agian");
@@ -208,6 +212,7 @@ public class Game {
 		}
 
 	}
+	
 
 	private Player anyPlayerButThis(Player guesser) {
 		Player p = players.get((int) (Math.random() * players.size()));
@@ -216,17 +221,45 @@ public class Game {
 		}
 		return p;
 	}
-
+	// returns the list of players in [this game] minus the player you put in
 	private ArrayList<Player> allPlayersButThis(Player guesser) {
+		return allPlayersButThis(getPlayers(), guesser);
+	}
+	// returns the list of players you put in in the original order minus the player you put in 
+	protected static ArrayList<Player> allPlayersButThis(List<Player> players, Player guesser) {
 		ArrayList<Player> allButThis = new ArrayList<Player>();
-		allButThis.addAll(getPlayers());
+		allButThis.addAll(players);
 		allButThis.remove(guesser);
 		return allButThis;
 	}
+	// returns a list of players minus the guesser IN THE CORRECT GUESSING ORDER
+	protected static ArrayList<Player> disprovePlayerList(List<Player> players, Player guesser){
+		ArrayList<Player> newPlayerOrder = new ArrayList<Player>();
+		int guesserIndex = players.indexOf(guesser);
+		int numPlayers = players.size();
+		for(int i = 0; i < numPlayers -1; i++){
+			int nextIndex = (guesserIndex +1 +i )% numPlayers;
+			newPlayerOrder.add(players.get(nextIndex));
+		}
+		
+		
+		return newPlayerOrder;
+	}
+	
+	
+	
+	
+	// playerList (0-4)
+	// player
+	// players index -> 2
+	// return a list in the following order
+	// 3,4,0,1
+	// 0,1,2,3,4
+	
+	
+	
 
-	// if my guess, record the card i see with my guess
-	// if not my guess, record the guess and who disproved in the games guess list
-
+	
 	public boolean isRealCard(String name) {
 		for (Card current : getAllCards()) {
 			if (current.getName().equals(name)) {
@@ -257,11 +290,9 @@ public class Game {
 		ArrayList<Card> weapons = findUnknownWeapons(guesser);
 		ArrayList<Card> rooms = findUnknownRooms(guesser);
 		ArrayList<Card> guessCards = new ArrayList<Card>();
-		ArrayList<Player> possibleDisprovers = allPlayersButThis(guesser);
-
+		ArrayList<Player> possibleDisprovers = disprovePlayerList(players,guesser);
+		//ArrayList<Player> possibleDisprovers = allPlayersButThis(guesser);
 		// calc all random cards
-		// TODO: these all keep giving me the "Index 0 out of bounds for length 0" error
-		// debug to fix
 		Card s = null;
 		Card w = null;
 		Card r = null;
@@ -342,7 +373,7 @@ public class Game {
 
 	public ArrayList<Card> findPlayerClues(Player p) {
 		// add all the clues in the players hand
-		ArrayList<Card> playerClues = addAll(p.getHandList());
+		ArrayList<Card> playerClues = addAll(p.getHand());
 		ArrayList<Guess> playerGuesses = findPLayerGuesses(p);
 		for (Guess g : playerGuesses) {
 			if (g.getDisprovingCard() != null && !playerClues.contains(g.getDisprovingCard())) {
@@ -495,7 +526,7 @@ public class Game {
 							getMatchingCard(weapon), disPlayer, thisCard);
 					if (isRealCard(disCardName)) {
 						getMyPlayer().getNotePad().add(g);
-						disPlayer.getHandList().add(thisCard);
+						disPlayer.getHand().add(thisCard);
 						Guess n = new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room),
 								getMatchingCard(weapon), disPlayer, thisCard);
 						getMyPlayer().getGuessList().add(n);
@@ -608,7 +639,7 @@ public class Game {
 		return allCards;
 	}
 
-	public static ArrayList<Player> getPlayers() {
+	public  ArrayList<Player> getPlayers() {
 		return players;
 	}
 
@@ -663,7 +694,7 @@ public class Game {
 		return id;
 	}
 	//returns the index of a player on the players list
-	public static int getPlayerOrder(String name) {
+	public int getPlayerOrder(String name) {
 		int order;
 		ArrayList<Player> list = getPlayers();
 		for (int i = 0; i < list.size(); i++) {
@@ -677,7 +708,7 @@ public class Game {
 	}
 
 	
-	public static Player findPLayerIndexOf(int num){
+	public Player findPLayerIndexOf(int num){
 		ArrayList<Player> players = getPlayers();
 		if(num <= players.size()) {
 			return players.get(num);
@@ -698,6 +729,15 @@ public class Game {
 	}
 
 	public void save() {
+		
+		// inserts all cards into db when the db does not already have cards
+		boolean needsCards = CardDb.countCards(conn) <= 0;
+		if (needsCards) {
+			for (Card c : allCards) {
+				CardDb cdb = new CardDb(c);
+				cdb.insert(conn);
+			}
+		}
 		// inserts all GameDb attributes into db
 		String winner = null;
 		String secretSuspect = secretCards[0].getName();
@@ -706,22 +746,19 @@ public class Game {
 		if (this.findWinningGuess() != null) {
 			winner = this.findWinningGuess().getMadeBy().getName();
 		}
+		
 		GameDb g = new GameDb(winner, secretSuspect, secretRoom, secretWeapon);
-		this.id = g.insert(conn);
+		this.setId(g.insert(conn));
 
-		// inserts this games players to db
+		// inserts this games players to db and insert their hands
 		for (Player p : players) {
-			PlayerDb aDb = new PlayerDb(p);
-			aDb.insert(conn);
+			PlayerDb pDb = new PlayerDb(p);
+			pDb.insert(conn);
+			pDb.insertHand(conn, p.getHand());
 		}
-		// inserts all cards into db when the db does not all ready have cards
-		boolean needsCards = CardDb.countCards(conn) <= 0;
-		if (needsCards) {
-			for (Card c : allCards) {
-				CardDb cdb = new CardDb(c);
-				cdb.insert(conn);
-			}
-		}
+
+		
+		
 		// inserts this games guesses into db
 		for (int i = 0; i < guessList.size(); ++i) {
 			GuessDb gdb = new GuessDb(guessList.get(i), i, getId());

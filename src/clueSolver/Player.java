@@ -40,11 +40,6 @@ public class Player implements Comparable<Player> {
 		return turnOrder;
 	}
 	
-
-	public ArrayList<Card> getHandList() {
-		return hand;
-	}
-
 	public ArrayList<Guess> getNotePad() {
 		return notePad;
 	}
@@ -132,6 +127,16 @@ public class Player implements Comparable<Player> {
 		return turnOrder;
 		
 	}
+
+	public ArrayList<Card> getHand() {
+		return hand;
+	}
+
+	public void setHand(ArrayList<Card> hand) {
+		this.hand = hand;
+	}
+
+	
 
 	
 	
