@@ -58,7 +58,7 @@ public class ReportApp {
 			System.out.println(
 					String.format("the first player advantage was: %.2f%%", calcFirstPLayerAdvantage(useFilter)));
 			System.out.println(
-					String.format("the last player disadvantage was:  %.2f%% ", calclastPlayerDisadvantage(useFilter)));
+					String.format("the last player disadvantage was:  %.2f%% ", calcLastPlayerDisadvantage(useFilter)));
 			// System.out.println(String.format(" the most cards advantage was %.2f ", calcMostCardsAdvantage(useFilter)));
 			numPlayers++;
 		}
@@ -401,18 +401,21 @@ public class ReportApp {
 
 	// select count(*), guesser_name from guess group by guesser_name;
 	public List<PlayerWins> getWinsPerPLayer(boolean useFilterTable) {
+		double totalGames = totalGames(useFilterTable);
 		List<PlayerWins> result = new ArrayList<PlayerWins>();
 		String whereClause = "";
+		
 		if (useFilterTable) {
 			whereClause = " where id in (select id from " + FILTER_TABLE_NAME + ")";
 		}
 		String sql = "select count(*) as count, winner from game " + whereClause + " group by winner ";
+		
 		try (PreparedStatement statement = conn.prepareStatement(sql); ResultSet rs = statement.executeQuery();) {
 
 			while (rs.next()) {
 				int count = rs.getInt("count");
 				String name = rs.getString("winner");
-				PlayerWins data = new PlayerWins(name, count);
+				PlayerWins data = new PlayerWins(name, count, totalGames);
 				result.add(data);
 			}
 		} catch (SQLException e) {
@@ -488,7 +491,7 @@ public class ReportApp {
 		}
 	}
 
-	public double calclastPlayerDisadvantage(boolean useFilterTable) {
+	public double calcLastPlayerDisadvantage(boolean useFilterTable) {
 		List<Integer> numWinsList = new ArrayList<Integer>();
 		int totalGames = 0;
 		String whereClause = "";
@@ -520,6 +523,13 @@ public class ReportApp {
 		}
 
 	}
+	
+	public ArrayList<Double> findWinsPercentages(boolean useFilterTable){
+		ArrayList<Double> perc = new ArrayList<Double>();
+		String sql = "";
+		String whereClause = " and game_id in (select id from " + FILTER_TABLE_NAME + ")";
+		return perc;
+	}
 
 	public static ArrayList<String> setToSortedList(Set<String> set) {
 		ArrayList<String> list = new ArrayList<String>();
@@ -527,5 +537,7 @@ public class ReportApp {
 		Collections.sort(list);
 		return list;
 	}
+	
+	
 
 }
