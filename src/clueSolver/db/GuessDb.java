@@ -34,7 +34,6 @@ public class GuessDb {
 		if (g.getDisprovingCard() != null) {
 			disproveCard = g.getDisprovingCard().getName();
 		}
-		//disprovedCard = g.getDisprovingCard(); TODO needs toString
 		if (g.getDisprovePlayer() != null) {
 			disprovePlayer = g.getDisprovePlayer().getName();
 
@@ -114,7 +113,6 @@ public class GuessDb {
 	
 	public static List<GuessDb> findByGuesserName(String guesserName, Connection conn) throws SQLException {
 		
-		//TODO: make sure it prints all guesses
 		String sql = "select "+ALL_COLS+" from guess where guesser_name = ?"; 
 		PreparedStatement statement = conn.prepareStatement(sql);
 		statement.setString(1, guesserName); 

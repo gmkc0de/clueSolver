@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import clueSolver.Player;
-
 public class ReportApp {
 	public Connection conn;
 	public static final String FILTER_TABLE_NAME = "working_games";
@@ -47,7 +45,7 @@ public class ReportApp {
 			System.out.println("total games in this section " + (int) totalGames(useFilter));
 			System.out.println("the longest game took: " + countLongestGame(useFilter) + " turns ");
 			System.out.println("the shortest game took: " + countShortestGame(useFilter) + " turns ");
-			System.out.println(String.format("the average turns to win was: %.2f%%", averageTurnsToWin(useFilter)));
+			System.out.println(String.format("the average turns to win were: %.2f turns ", averageTurnsToWin(useFilter)));
 			System.out.println("the longest it took to win was: "
 					+ findPlayersNumGuesses(findLongestWinner(useFilter), findLongestGame(useFilter), useFilter)
 					+ " turns");
@@ -59,48 +57,11 @@ public class ReportApp {
 					String.format("the first player advantage was: %.2f%%", calcFirstPLayerAdvantage(useFilter)));
 			System.out.println(
 					String.format("the last player disadvantage was:  %.2f%% ", calcLastPlayerDisadvantage(useFilter)));
-			// System.out.println(String.format(" the most cards advantage was %.2f ", calcMostCardsAdvantage(useFilter)));
 			numPlayers++;
 		}
 
 	}
 
-	private Object calcMostCardsAdvantage(boolean useFilterTable) {
-		String whereClause = "";
-		PlayerDb mostCards;
-		PlayerDb secondMostCards;
-		int counter = 0;
-		if (useFilterTable) {
-			whereClause = " where p.game_id in (select id from " + FILTER_TABLE_NAME + ") ";
-		}
-		String sqlOrder = " group by p.name, p.id, p.game_id order by count(*) desc ";
-		String sql = "select p.name, p.id, p.game_id, count(*) from player p inner join player_card pc " + whereClause + sqlOrder;
-		
-		
-		
-		try(Statement statement = conn.createStatement(); ResultSet rs = statement.executeQuery(sql)){
-			
-			while(rs.next() && counter < 2) {
-				
-				if (counter == 0) {
-					mostCards = PlayerDb.findPlayerById(rs.getInt(2),conn).findThisPlayersWins();
-				}
-				if(counter == 0) {
-					secondMostCards = PlayerDb.findPlayerById(rs.getInt(2),conn);
-				}
-				counter ++;
-			}
-			
-			
-			
-			
-		}catch(SQLException e) {
-			throw new RuntimeException(e);
-		}
-		
-		
-		return null;
-	}
 
 	// select count(*), game_id from guess group by game_id order by count(*) desc
 	// limit 1;
@@ -523,13 +484,7 @@ public class ReportApp {
 		}
 
 	}
-	
-	public ArrayList<Double> findWinsPercentages(boolean useFilterTable){
-		ArrayList<Double> perc = new ArrayList<Double>();
-		String sql = "";
-		String whereClause = " and game_id in (select id from " + FILTER_TABLE_NAME + ")";
-		return perc;
-	}
+
 
 	public static ArrayList<String> setToSortedList(Set<String> set) {
 		ArrayList<String> list = new ArrayList<String>();

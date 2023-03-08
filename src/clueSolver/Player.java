@@ -59,7 +59,6 @@ public class Player implements Comparable<Player> {
 	}
 
 	public boolean equals(Object o) {
-		// TODO why does it not recognize player??
 		if (o instanceof Player) {
 			Player playerToTest = (Player) o;
 			return playerToTest.getName().equals(this.getName());

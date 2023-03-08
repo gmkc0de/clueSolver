@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import clueSolver.db.ReportApp;
@@ -15,7 +14,7 @@ public class ClueApp {
 		
 		L.CURRENT_LEVEL = L.ERROR;
 		//random number, that when you add 3 your range will be min: 3, max 6.
-		int numberOfGames = 50000;
+		int numberOfGames = 1000;
 		
 		resetDatabase();
 		

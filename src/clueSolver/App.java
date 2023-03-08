@@ -97,9 +97,7 @@ public class App {
 		}
 		System.out.println();
 		ArrayList<Player> winnersArray = new ArrayList<Player>(winners.keySet());
-		// TODO: sort winners here
 		Collections.sort(winnersArray);
-		// winnersArray.sort();
 		for (Player p : winnersArray) {
 			NumberFormat formatter = new DecimalFormat("#0.00");
 
@@ -115,7 +113,6 @@ public class App {
 		double firstsPlayerAdvantage = (winners.get(winnersArray.get(0))/(double)numPlayers)- (winners.get(winnersArray.get(1))/(double)numPlayers);
 		String advString = formatter.format(firstsPlayerAdvantage);
 		System.out.println(">>the first player has an advantage over the others by " + advString);
-		// TODO: add each players personal average guesses
 		System.out.println(">>longest game: " + longest + " turns, shortest game: " + shortest
 				+ " turns, average number of turns: " + average / numberOfGames);
 		System.out.println(">>average num guesses for winner " + winnerGuessAverage / numberOfGames);

@@ -63,10 +63,8 @@ public class Game {
 
 	public static Game createTestGame(int numPlayers) {
 		Game game = new Game();
-		Connection conn = game.getConn();
 		for (int i = 0; i < numPlayers; i++) {
 			String name = game.testPlayerNames.get(i);
-			// TODO: find a way t give all player variables different names
 			Player a = new Player(name, game);
 			int order = game.addPlayer(a);
 			a.setOrder(order);
