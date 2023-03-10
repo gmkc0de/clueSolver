@@ -1,25 +1,22 @@
-package clueSolver;
+package clueSolver.player;
 
 import java.util.ArrayList;
 
-public class Player implements Comparable<Player> {
-	private String name;
-	private ArrayList<Guess> guesses;
-	private ArrayList<Card> hand;
-	private Game currentGame;
-	private boolean isComputer;
-	public ArrayList<Guess> notePad;
-	private int turnOrder;
+import clueSolver.Card;
+import clueSolver.Game;
+import clueSolver.Guess;
+import clueSolver.L;
 
-	public Player(String name, Game g) {
-		this.name = name;
-		guesses = new ArrayList<Guess>();
-		hand = new ArrayList<Card>();
-		notePad = new ArrayList<Guess>();
-		currentGame = g;
-		isComputer = true;
-		
-	}
+public abstract class Player implements Comparable<Player> {
+	protected String name;
+	protected ArrayList<Guess> guesses;
+	protected ArrayList<Card> hand;
+	protected Game currentGame;
+	protected boolean isComputer;
+	public ArrayList<Guess> notePad;
+	protected int turnOrder;
+
+	
 
 	public void addToHand(Card c) {
 		hand.add(c);
@@ -135,7 +132,7 @@ public class Player implements Comparable<Player> {
 		this.hand = hand;
 	}
 
-	
+	abstract public Guess makeGuess(); 
 
 	
 	

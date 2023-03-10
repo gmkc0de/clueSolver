@@ -9,6 +9,8 @@ import clueSolver.db.GameDb;
 import clueSolver.db.GuessDb;
 import clueSolver.db.PlayerDb;
 import clueSolver.db.SqliteUtil;
+import clueSolver.player.Player;
+import clueSolver.player.RandomPlayer;
 
 public class Game {
 
@@ -65,7 +67,7 @@ public class Game {
 		Game game = new Game();
 		for (int i = 0; i < numPlayers; i++) {
 			String name = game.testPlayerNames.get(i);
-			Player a = new Player(name, game);
+			Player a = new RandomPlayer(name, game);
 			int order = game.addPlayer(a);
 			a.setOrder(order);
 			
@@ -284,60 +286,25 @@ public class Game {
 	}
 
 	private Guess generateRandomGuess(Player guesser) {
-		ArrayList<Card> suspects = findUnknownSuspects(guesser);
-		ArrayList<Card> weapons = findUnknownWeapons(guesser);
-		ArrayList<Card> rooms = findUnknownRooms(guesser);
-		ArrayList<Card> guessCards = new ArrayList<Card>();
-		ArrayList<Player> possibleDisprovers = disprovePlayerList(players,guesser);
-		//ArrayList<Player> possibleDisprovers = allPlayersButThis(guesser);
-		// calc all random cards
-		Card s = null;
-		Card w = null;
-		Card r = null;
-		try {
-			s = suspects.get((int) (Math.random() * suspects.size()));
-			guessCards.add(s);
-			w = weapons.get((int) (Math.random() * weapons.size()));
-			guessCards.add(w);
-			r = rooms.get((int) (Math.random() * rooms.size()));
-			guessCards.add(r);
-		} catch (Exception e) {
-			System.err.println(e.getLocalizedMessage());
-			throw e;
-		}
-		// will be left null of no one disproves
-		Card disCard = null;
+		
+		Guess guess = guesser.makeGuess();
+		ArrayList<Player> possibleDisprovers = disprovePlayerList(getPlayers() ,guesser);		
 		Player disprover = null;
-
+		Card disCard = null;
+		
 		for (Player p : possibleDisprovers) {
 			// checks if any players can disprove the guess
-			Card dis = p.disproveGuess(new Guess(guesser, s, r, w, p, null));
+			Card dis = p.disproveGuess(guess);
 			if (dis != null) {
 				// fills in cards if player can disprove
+				guess.setDisprovePerson(p);
 				disprover = p;
 				disCard = dis;
 				break;
 			}
 
 		}
-		// if the guess was not disproved
-		if (disprover == null) {
-			L.i(">>no one could disprove this guess<<");
-			return new Guess(guesser, s, r, w, null, null);
-		} else {
-			// if the guess was disproved
-			if (guesser.equals(getMyPlayer()) || guesser.isComputer()) {
-				// if guesser is me or a computerized player
-				Guess rand = new Guess(guesser, s, r, w, disprover, disCard);
-				return rand;
-			} else {
-				// if guesser the is a human who is not me
-				Guess rand = new Guess(guesser, s, r, w, disprover, null);
-				return rand;
-			}
-
-		}
-
+		return guess;
 	}
 
 	public ArrayList<Card> findUnknownSuspects(Player p) {
@@ -432,13 +399,13 @@ public class Game {
 		int numPlayers = App.getIntFromUser("How many players?");
 		String name = App.getStringInputFromUser("what is your name?");
 		System.out.println("hello " + name);
-		Player me = new Player(name, this);
+		Player me = new RandomPlayer(name, this);
 		players.add(me);
 
 		// make list of other players
 		for (int i = 1; i < numPlayers; i++) {
 			String otherPlayer = App.getStringInputFromUser("what is other player " + i + "'s name?");
-			Player other = new Player(otherPlayer, this);
+			Player other = new RandomPlayer(otherPlayer, this);
 			players.add(other);
 
 		}

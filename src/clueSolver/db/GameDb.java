@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import clueSolver.Card;
-import clueSolver.Player;
+import clueSolver.player.Player;
 
 public class GameDb {
 	int id;

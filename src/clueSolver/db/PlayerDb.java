@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.List;
 
 import clueSolver.Card;
-import clueSolver.Player;
+import clueSolver.player.Player;
 
 public class PlayerDb {
 	int id;

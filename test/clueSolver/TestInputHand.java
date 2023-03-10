@@ -4,12 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import clueSolver.db.PlayerDb;
 import clueSolver.db.SqliteUtil;
+import clueSolver.player.Player;
+import clueSolver.player.RandomPlayer;
 
 public class TestInputHand {
 	@Test
@@ -18,7 +19,7 @@ public class TestInputHand {
 
 			Game game = new Game();
 			
-			Player anne = new Player("anne", null);
+			Player anne = new RandomPlayer("anne", null);
 
 			PlayerDb anneDb = new PlayerDb(anne);
 

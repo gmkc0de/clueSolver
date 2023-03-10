@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import clueSolver.player.Player;
+
 public class App {
 //TODO: >long term<All get input methods should deal with incorrect input and allow player to try again instead of requiring the code to restart
 	public static void main(String[] args) throws Exception {

@@ -1,5 +1,7 @@
 package clueSolver;
 
+import clueSolver.player.Player;
+
 public class Guess {
 	Card suspect;
 	Card room;
@@ -80,6 +82,12 @@ public class Guess {
 	}
 	public boolean isDisproved() {
 		return disproveCard != null;
+	}
+	public Player getDisprovePerson() {
+		return disprovePerson;
+	}
+	public void setDisprovePerson(Player disprovePerson) {
+		this.disprovePerson = disprovePerson;
 	}
 	
 }
