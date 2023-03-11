@@ -163,6 +163,11 @@ public abstract class Player implements Comparable<Player> {
 		return null;
 	}
 	
+	public Card getRandomCardFromHand() {
+		return hand.get((int)(Math.random() * hand.size()));
+	}
+	
+	
 	
 	abstract public Guess makeGuess(); 
 

@@ -31,7 +31,7 @@ public class SmartPlayer extends Player {
 		
 		Guess smart = null;
 		//choose any card in hand
-		Card  rand = hand.get((int)(Math.random() * hand.size()));
+		Card  rand = getRandomCardFromHand();
 		
 		// choose a second a card of a different type
 		Card  scnd = getRandomCardFromHandWithoutType(rand.getType());
