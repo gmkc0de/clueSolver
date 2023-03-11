@@ -1,6 +1,8 @@
 package clueSolver.player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import clueSolver.Card;
 import clueSolver.Game;
@@ -9,11 +11,10 @@ import clueSolver.L;
 
 public abstract class Player implements Comparable<Player> {
 	protected String name;
-	protected ArrayList<Guess> guesses;
+
 	protected ArrayList<Card> hand;
 	protected Game currentGame;
 	protected boolean isComputer;
-	public ArrayList<Guess> notePad;
 	protected int turnOrder;
 
 	
@@ -25,9 +26,7 @@ public abstract class Player implements Comparable<Player> {
 		return isComputer;
 	}
 	
-	public ArrayList<Guess> getGuessList() {
-		return guesses;
-	}
+
 
 	public String getName() {
 		return name;
@@ -37,9 +36,7 @@ public abstract class Player implements Comparable<Player> {
 		return turnOrder;
 	}
 	
-	public ArrayList<Guess> getNotePad() {
-		return notePad;
-	}
+	
 
 	public Game getCurrentGame() {
 		return currentGame;
@@ -132,6 +129,41 @@ public abstract class Player implements Comparable<Player> {
 		this.hand = hand;
 	}
 
+	public Card getRandomCardFromHandWithType(String type) {
+		Card[] cards = currentGame.getAllCards();
+		for(int i = 0; i < cards.length; i++ ) {
+			Card c  = hand.get(((int) (Math.random() * hand.size())));
+			if(c.getType() == type) {
+				return c;
+			}
+		}
+		//get a card, return null if needed
+		return null;
+	}
+	
+	public Card getRandomCardFromHandWithoutType(String type) {
+		//get a card, return null if needed
+		Card[] cards = currentGame.getAllCards();
+		for(int i = 0; i < cards.length; i++ ) {
+			Card c  = hand.get(((int) (Math.random() * hand.size())));
+			if(c.getType() != type) {
+				return c;
+			}
+		}
+		return null;
+	}
+	protected String findDifferentType(String type1, String type2) {
+		
+		List<String> types = Arrays.asList("room","weapon","suspect");		
+		for(int i = 0 ; i< 3; i++) {
+			if(types.get(i) != type1 && types.get(i) != type2) {
+				return types.get(i);
+			}
+		}
+		return null;
+	}
+	
+	
 	abstract public Guess makeGuess(); 
 
 	

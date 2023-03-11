@@ -306,9 +306,16 @@ public class Game {
 		}
 		return guess;
 	}
+	public ArrayList<Card> findUnknownCards(Player p) {
+		ArrayList<Card> playerClues = findPlayerClues(p);
+		Card[] allCards =  getAllCards();
+		ArrayList<Card> unknown = addAll(allCards);
+		unknown.removeAll(playerClues);
+
+		return unknown;
+	}
 
 	public ArrayList<Card> findUnknownSuspects(Player p) {
-		// wow dad just wow -_-
 		ArrayList<Card> playerClues = findPlayerClues(p);
 		ArrayList<Card> allSus = getAllSuspects();
 		ArrayList<Card> unknown = addAll(allSus);
@@ -468,59 +475,7 @@ public class Game {
 		return null;
 	}
 
-	public Guess oldGetGuessFromUser() throws Exception {
-		Player guessPlayer = getMatchingPLayer(App.getStringInputFromUser("record a guesss who is making this guess?"));
-		String sus = App.getStringInputFromUser("please input suspect");
-		String weapon = App.getStringInputFromUser("please input weapon");
-		String room = App.getStringInputFromUser("please input room");
-		if (isValidGuess(sus, weapon, room)) {
-			String disPlayerUserInput = App.getStringInputFromUser("who disproved the guess?");
-			Player disPlayer = getMatchingPLayer(disPlayerUserInput);
-			// if the player is the one making the guess record the card as well;
-			if (disPlayerUserInput.equals("none")) {
-				// not disproved!
-			} else if (disPlayer != null) {
-				// the guess was disproved
-				if (guessPlayer.equals(getMyPlayer())) {
-					// i am the guesser, and my guess was disproved
-					// record the disproved card in my note notepad
-
-					String disCardName = App.getStringInputFromUser("what was the disproving cards name?");
-					Card thisCard = getMatchingCard(disCardName);
-					Guess g = new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room),
-							getMatchingCard(weapon), disPlayer, thisCard);
-					if (isRealCard(disCardName)) {
-						getMyPlayer().getNotePad().add(g);
-						disPlayer.getHand().add(thisCard);
-						Guess n = new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room),
-								getMatchingCard(weapon), disPlayer, thisCard);
-						getMyPlayer().getGuessList().add(n);
-						System.out.println(">succesfuly added<");
-					} else {
-						System.out.println("invalid card");
-
-					}
-					return g;
-				} else {
-					// i am not the guesser
-					if (guessPlayer != null && getMatchingSuspect(sus) && isValidWeapon(weapon)) {
-						System.out.println(">succesfuly added<");
-						return new Guess(guessPlayer, getMatchingCard(sus), getMatchingCard(room),
-								getMatchingCard(weapon), disPlayer);
-					} else {
-						System.out.println("invalid guess - cannot be entered");
-					}
-
-				}
-			} else {
-				System.out.println("failure - the disproving player is not a valid player");
-			}
-
-		} else {
-			System.out.println("invalid guess - cannot be entered");
-		}
-		return null;
-	}
+	
 
 	public ArrayList<Guess> getGuessList() {
 		return guessList;
