@@ -49,10 +49,11 @@ create table player(
 	id integer primary key,
 	name text,
 	game_id integer,
+	type text,
 	is_computer boolean,
 	turn_order integer
 );
-drop table if exists player_hand;
+
 drop table if exists player_card;
 create table player_card(
 	game_id integer,

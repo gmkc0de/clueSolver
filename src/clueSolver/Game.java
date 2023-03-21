@@ -11,6 +11,7 @@ import clueSolver.db.PlayerDb;
 import clueSolver.db.SqliteUtil;
 import clueSolver.player.Player;
 import clueSolver.player.RandomPlayer;
+import clueSolver.player.SmartPlayer;
 
 public class Game {
 
@@ -67,9 +68,16 @@ public class Game {
 		Game game = new Game();
 		for (int i = 0; i < numPlayers; i++) {
 			String name = game.testPlayerNames.get(i);
-			Player a = new RandomPlayer(name, game);
-			int order = game.addPlayer(a);
-			a.setOrder(order);
+			if(i == 0) {
+				Player a = new SmartPlayer(name, game);
+				int order = game.addPlayer(a);
+				a.setOrder(order);
+			}else {
+				Player a = new RandomPlayer(name, game);
+				int order = game.addPlayer(a);
+				a.setOrder(order);
+			}
+			
 			
 		}
 

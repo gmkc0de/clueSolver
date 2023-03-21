@@ -14,17 +14,19 @@ public class PlayerDb {
 	int id;
 	String name;
 	int gameId;
+	String type;
 	boolean isComputer;
 	int turnOrder;
 	
 	public PlayerDb(Player p) {
 		name = p.getName();
 		gameId = p.getCurrentGame().getId();
+		type = p.getType();
 		isComputer = p.isComputer();
 		turnOrder = p.getTurnOrder();
 	}
 
-	public static String ALL_COLS = "name, game_id, is_computer, turn_order";
+	public static String ALL_COLS = "name, game_id, type, is_computer, turn_order";
 
 	public void insertHand(Connection conn, List<Card> hand) {
 		int gId = this.gameId;
@@ -38,12 +40,13 @@ public class PlayerDb {
 	public void insert(Connection conn) {
 		// insert a player into the db
 		try {
-			String sql = "insert into player(" + ALL_COLS + ") values(?,?,?,?)";
+			String sql = "insert into player(" + ALL_COLS + ") values(?,?,?,?,?)";
 			PreparedStatement statement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			statement.setString(1, name);
 			statement.setInt(2, gameId);
-			statement.setBoolean(3, isComputer);
-			statement.setInt(4, turnOrder);
+			statement.setString(3, type);
+			statement.setBoolean(4, isComputer);
+			statement.setInt(5, turnOrder);
 			statement.execute();
 			ResultSet rs = statement.getGeneratedKeys();
 			if (rs.next()) {

@@ -8,6 +8,8 @@ import clueSolver.Guess;
 
 public class RandomPlayer extends Player {
 	
+	public String RANDOM_TYPE = "random";
+	
 	public RandomPlayer(String name, Game g) {
 		this.name = name;
 		
@@ -46,5 +48,10 @@ public class RandomPlayer extends Player {
 		}
 		
 		return g ;
+	}
+	
+	public String getType() {
+
+		return RANDOM_TYPE;
 	}
 }

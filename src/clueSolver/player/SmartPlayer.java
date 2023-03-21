@@ -10,6 +10,9 @@ import clueSolver.Guess;
 
 public class SmartPlayer extends Player {
 	
+	public static String SMART_TYPE = "smart";
+	
+	
 	public SmartPlayer(String name, Game g) {
 		this.name = name;
 		
@@ -22,6 +25,35 @@ public class SmartPlayer extends Player {
 	
 	@Override
 	public Guess makeGuess() {
+		Guess g = null;
+		
+		ArrayList<Card> suspects = currentGame.findUnknownSuspects(this);
+		ArrayList<Card> weapons = currentGame.findUnknownWeapons(this);
+		ArrayList<Card> rooms = currentGame.findUnknownRooms(this);
+		ArrayList<Card> guessCards = new ArrayList<Card>();
+		
+		//ArrayList<Player> possibleDisprovers = allPlayersButThis(guesser);
+		// calc all random cards
+		Card s = null;
+		Card w = null;
+		Card r = null;
+		try {
+			s = suspects.get((int) (Math.random() * suspects.size()));
+			guessCards.add(s);
+			w = weapons.get((int) (Math.random() * weapons.size()));
+			guessCards.add(w);
+			r = rooms.get((int) (Math.random() * rooms.size()));
+			guessCards.add(r);
+			
+			g = new Guess(this, s, r, w, null, null);
+		} catch (Exception e) {
+			System.err.println(e.getLocalizedMessage());
+			throw e;
+		}
+		
+		return g ;
+	}
+	public Guess inDevmakeGuess() {
 		// TODO write a smart player make guess
 		/*/
 		 * this player should always guess two cards from their own hand and one card they havent guessed yet
@@ -31,26 +63,40 @@ public class SmartPlayer extends Player {
 		
 		Guess smart = null;
 		//choose any card in hand
-		Card  rand = getRandomCardFromHand();
+		Card  first = getRandomCardFromHand();
 		
 		// choose a second a card of a different type
-		Card  scnd = getRandomCardFromHandWithoutType(rand.getType());
+		Card  scnd = getRandomCardFromHandWithoutType(first.getType());
 		//
-	
-		String type  = findDifferentType(rand.getType(),scnd.getType());
+		if(scnd == null) {
+			
+			
+		}
+		String type  = findDifferentType(first.getType(),scnd.getType());
 
-
-		
-		//
 		ArrayList<Card> unknown = currentGame.findUnknownCards(this);
-		//unknown.getRandomCardFromHandWithType(type);
+		//select the third card in the guess from the only remaining options
+		Card third = getRandomCardFromListWithType(type, unknown);
+		if(third == null) {
+			
+			
+		}
 		
 		return null;
 	}
-
 	
+	private Card getRandomCardFromListWithType(String type, ArrayList<Card> cards) {
+		Card c  = cards.get(((int) (Math.random() * cards.size())));
+		
+		return c;
+		
+	}
 
-	
+	public String getType() {
+
+		return SMART_TYPE;
+	}
+
 	
 	
 }

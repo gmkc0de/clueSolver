@@ -10,6 +10,7 @@ import clueSolver.Guess;
 import clueSolver.L;
 
 public abstract class Player implements Comparable<Player> {
+
 	protected String name;
 
 	protected ArrayList<Card> hand;
@@ -17,26 +18,21 @@ public abstract class Player implements Comparable<Player> {
 	protected boolean isComputer;
 	protected int turnOrder;
 
-	
-
 	public void addToHand(Card c) {
 		hand.add(c);
 	}
+
 	public boolean isComputer() {
 		return isComputer;
 	}
-	
-
 
 	public String getName() {
 		return name;
 	}
-	
+
 	public int getTurnOrder() {
 		return turnOrder;
 	}
-	
-	
 
 	public Game getCurrentGame() {
 		return currentGame;
@@ -89,14 +85,15 @@ public abstract class Player implements Comparable<Player> {
 					return c;
 				}
 			}
-			L.i(">>you have disproved "+ g.getGuesser().getName()+"'s guess with the "+ canDisprove.get(0).getName()+" card"+"<<");
+			L.i(">>you have disproved " + g.getGuesser().getName() + "'s guess with the " + canDisprove.get(0).getName()
+					+ " card" + "<<");
 			return canDisprove.get(0);
-		}else {
+		} else {
 			L.i(">>you cannot disprove this guess<<");
 			return null;
 		}
 	}
-	
+
 	public String toString() {
 		return name;
 	}
@@ -109,16 +106,17 @@ public abstract class Player implements Comparable<Player> {
 	@Override
 	public int compareTo(Player o) {
 		return this.getName().compareTo(o.getName());
-		
+
 	}
 
 	public void setOrder(int order) {
-		  turnOrder = order;
-		
+		turnOrder = order;
+
 	}
+
 	public int getOrder() {
 		return turnOrder;
-		
+
 	}
 
 	public ArrayList<Card> getHand() {
@@ -128,50 +126,57 @@ public abstract class Player implements Comparable<Player> {
 	public void setHand(ArrayList<Card> hand) {
 		this.hand = hand;
 	}
+	
+	public Card getRandomCardFromDeck() {
+		Card[] allCards = currentGame.getAllCards();
+		return allCards[((int) (Math.random() * allCards.length))];
+		
+	}
+	public Card getRandomCardOfATypeFromDeck(String type) {
+		Card[] allCards = currentGame.getAllCards();
+		
+		
+	}
 
 	public Card getRandomCardFromHandWithType(String type) {
-		Card[] cards = currentGame.getAllCards();
-		for(int i = 0; i < cards.length; i++ ) {
-			Card c  = hand.get(((int) (Math.random() * hand.size())));
-			if(c.getType() == type) {
+		for (int i = 0; i < hand.size(); i++) {
+			Card c = hand.get(((int) (Math.random() * hand.size())));
+			if (c.getType() == type) {
 				return c;
 			}
 		}
-		//get a card, return null if needed
+		// get a card, return null if needed
 		return null;
 	}
-	
+
 	public Card getRandomCardFromHandWithoutType(String type) {
-		//get a card, return null if needed
-		Card[] cards = currentGame.getAllCards();
-		for(int i = 0; i < cards.length; i++ ) {
-			Card c  = hand.get(((int) (Math.random() * hand.size())));
-			if(c.getType() != type) {
+		// get a card, return null if needed
+		for (int i = 0; i < hand.size(); i++) {
+			Card c = hand.get(((int) (Math.random() * hand.size())));
+			if (c.getType() != type) {
 				return c;
 			}
 		}
 		return null;
 	}
+
+	public Card getRandomCardFromHand() {
+		return hand.get((int) (Math.random() * hand.size()));
+	}
+
 	protected String findDifferentType(String type1, String type2) {
-		
-		List<String> types = Arrays.asList("room","weapon","suspect");		
-		for(int i = 0 ; i< 3; i++) {
-			if(types.get(i) != type1 && types.get(i) != type2) {
+
+		List<String> types = Arrays.asList("room", "weapon", "suspect");
+		for (int i = 0; i < 3; i++) {
+			if (types.get(i) != type1 && types.get(i) != type2) {
 				return types.get(i);
 			}
 		}
 		return null;
 	}
-	
-	public Card getRandomCardFromHand() {
-		return hand.get((int)(Math.random() * hand.size()));
-	}
-	
-	
-	
-	abstract public Guess makeGuess(); 
 
-	
-	
-	
+	abstract public Guess makeGuess();
+
+	abstract public String getType();
+
 }
