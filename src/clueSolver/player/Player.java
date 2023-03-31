@@ -132,33 +132,17 @@ public abstract class Player implements Comparable<Player> {
 		choices.add("room");
 		choices.add("weapon");
 		choices.add("suspect");
-		for(String s : choices) {
+		for(int i=0; i<choices.size(); ++i) {
+			String s = choices.get(i);
 			if(s == type) {
+				--i;
 				choices.remove(s);
 			}
 		}
 		return choices.get(((int) (Math.random() * choices.size())));
 	}
 
-	public Card getRandomCardFromDeck() {
-		Card[] allCards = currentGame.getAllCards();
-		return allCards[((int) (Math.random() * allCards.length))];
-
-	}
 	
-
-	public Card getRandomCardOfATypeFromDeck(String type) {
-		Card[] allCards = currentGame.getAllCards();
-		ArrayList<Card> ofType = new ArrayList<Card>();
-		for (Card c : allCards) {
-			if (c.getType() == type) {
-				ofType.add(c);
-			}
-
-		}
-		return ofType.get((int)(Math.random()* ofType.size()));
-	}
-
 	public Card getRandomCardFromHandWithType(String type) {
 		for (int i = 0; i < hand.size(); i++) {
 			Card c = hand.get(((int) (Math.random() * hand.size())));

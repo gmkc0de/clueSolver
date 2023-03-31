@@ -22,8 +22,8 @@ public class SmartPlayer extends Player {
 
 	}
 
-	@Override
-	public Guess makeGuess() {
+	
+	public Guess OldMakeGuess() {
 		Guess g = null;
 
 		ArrayList<Card> suspects = currentGame.findUnknownSuspects(this);
@@ -52,8 +52,8 @@ public class SmartPlayer extends Player {
 
 		return g;
 	}
-
-	public Guess inDevmakeGuess() {
+	@Override
+	public Guess makeGuess() {
 		// TODO write a smart player make guess
 		/*
 		 * / this player should always guess two cards from their own hand and one card
@@ -62,39 +62,59 @@ public class SmartPlayer extends Player {
 		 * when they have three cards that could not be disproven they guess those three
 		 * cards
 		 */
+		Guess smart = new Guess();
+		smart.setMadeBy(this);
+		
+		String[] types = {"suspect","room","weapon"};
 
-		Guess smart = null;
+		ArrayList<Card> cardsForGuess = new ArrayList<Card>();
 		// choose any card in hand
 		Card first = getRandomCardFromHand();
-
-		// choose a second a card of a different type
+		cardsForGuess.add(first);
 		String scndType = chooseDifferentType(first.getType());
 		Card scnd = getRandomCardFromHandWithType(scndType);
-		//
+
+		//if player has all cards of same type, second card will be null
+		//so, make a random guess from the deck instead
 		if (scnd == null) {
-
-			scnd = getRandomCardOfATypeFromDeck(scndType);
+			scnd = currentGame.getRandomCardOfATypeFromDeck(scndType);
 		}
+		cardsForGuess.add(scnd);
+
 		String type = findDifferentType(first.getType(), scnd.getType());
-
-		ArrayList<Card> unknown = currentGame.findUnknownCards(this);
-		
+		ArrayList<Card> unknownCards = currentGame.findUnknownCards(this);
 		// select the third card in the guess from the only remaining options
-		Card third = getRandomCardFromListWithType(type, unknown);
+		Card third = Game.getRandomCardFromListWithType(type, unknownCards);
 		if (third == null) {
-			third = getRandomCardOfATypeFromDeck(type);
-
+			third = currentGame.getRandomCardOfATypeFromDeck(type);
 		}
+		cardsForGuess.add(third);
+		// fill in the guess
 
-		return null;
+		smart.addCardToGuess(cardsForGuess.get(0));
+		smart.addCardToGuess(cardsForGuess.get(1));
+		smart.addCardToGuess(cardsForGuess.get(2));
+		
+		
+//		for(int i = 0; i < 3; i++) {
+//			for(Card t : cardsForGuess) {
+//				if(types[i].equals(t.getType())) {
+//					if(i == 0) {
+//						smart.setSuspect(t);
+//					}else if(i == 1) {
+//						smart.setRoom(t);
+//					}else if(i == 2) {
+//						smart.setWeapon(t);
+//					}
+//				}
+//			}
+//		}
+		
+		
+		
+		return smart;
 	}
-
-	private Card getRandomCardFromListWithType(String type, ArrayList<Card> cards) {
-		Card c = cards.get(((int) (Math.random() * cards.size())));
-
-		return c;
-
-	}
+	
 
 	public String getType() {
 

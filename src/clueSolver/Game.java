@@ -704,7 +704,49 @@ public class Game {
 		}
 
 	}
-
 	
+	// TODO move the methods below to a game util class
+	public static List<Card> getAllCardsWithType(String type, ArrayList<Card> cards) {
+		List<Card> typeCardList = new ArrayList<Card>();
+		for(Card c : cards) {
+			if(c.getType().equals(type)) {
+				typeCardList.add(c);
+			}
+		}
+		return typeCardList;
+	}
+
+	public static Card getRandomCardFromListWithType(String type, ArrayList<Card> cards) {
+		List<Card> choose = getAllCardsWithType(type, cards);
+		if(choose != null && choose.size() > 0){
+			Card c = choose.get(((int) (Math.random() * choose.size())));
+
+			return c;
+		}else {
+			return null;
+		}
+		
+
+	}
+
+	public Card getRandomCardFromDeck() {
+		Card[] allCards = this.getAllCards();
+		return allCards[((int) (Math.random() * allCards.length))];
+
+	}
+	
+
+	public Card getRandomCardOfATypeFromDeck(String type) {
+		Card[] allCards = this.getAllCards();
+		ArrayList<Card> ofType = new ArrayList<Card>();
+		for (Card c : allCards) {
+			if (c.getType() == type) {
+				ofType.add(c);
+			}
+
+		}
+		return ofType.get((int)(Math.random()* ofType.size()));
+	}
+
 
 }

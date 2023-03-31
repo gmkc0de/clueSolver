@@ -44,6 +44,19 @@ public class Card {
 		}
 		return false;
 	}
+
+	public boolean isSuspect() {
+		
+		return this.getType().equals("suspect");
+		
+	}	public boolean isWeapon() {
+		
+		return this.getType().equals("weapon");
+		
+	}	public boolean isRoom() {
+		
+		return this.getType().equals("room");
+	}
 }
 
 

@@ -10,13 +10,17 @@ public class Guess {
 	Player madeBy;
 	Card disproveCard;
 
-	
-	public Guess(Player made, Card sus, Card r, Card w, Player disP, Card disC ) {
-		
-		if(made == null || sus == null || r == null || w == null) {
-			throw new NullPointerException("guesser :"+made +" sus: "+sus+", room:"+r+", weapon: "+w+" should all be not null");
+	public Guess() {
+		super();
+	}
+
+	public Guess(Player made, Card sus, Card r, Card w, Player disP, Card disC) {
+
+		if (made == null || sus == null || r == null || w == null) {
+			throw new NullPointerException(
+					"guesser :" + made + " sus: " + sus + ", room:" + r + ", weapon: " + w + " should all be not null");
 		}
-		
+
 		suspect = sus;
 		room = r;
 		weapon = w;
@@ -24,6 +28,7 @@ public class Guess {
 		disproveCard = disC;
 		madeBy = made;
 	}
+
 	public Guess(Player made, Card sus, Card r, Card w, Player disP) {
 		suspect = sus;
 		room = r;
@@ -43,51 +48,104 @@ public class Guess {
 	public Card getWeapon() {
 		return weapon;
 	}
+
 	public String toString() {
 
 		String s = "";
 		s += "the guess was made by: " + madeBy.getName();
 		s += ", suspect: " + (suspect != null ? suspect.getName() : "null");
-		s += ", weapon: " + (weapon != null ? weapon.getName()  : "null");
+		s += ", weapon: " + (weapon != null ? weapon.getName() : "null");
 		s += ", room: " + (room != null ? room.getName() : "null");
-		if(disprovePerson != null) {
+		if (disprovePerson != null) {
 			s += ", disproved by: " + disprovePerson.getName();
 
-		}else {
+		} else {
 			s += ", disproved by: NULL";
 		}
-		if(disproveCard != null) {
-			s+= ", disproving card: " + disproveCard.getName();
+		if (disproveCard != null) {
+			s += ", disproving card: " + disproveCard.getName();
 		}
 		return s;
 	}
+
 	public Player getGuesser() {
 		return madeBy;
 	}
+
 	public Card getDisprovingCard() {
 		return disproveCard;
 	}
+
 	public Player getDisprovePlayer() {
 		return disprovePerson;
 	}
+
 	public Player getMadeBy() {
 		return madeBy;
 	}
+
 	public void setMadeBy(Player madeBy) {
 		this.madeBy = madeBy;
 	}
-	public boolean equals(){
-		
+
+	public boolean equals() {
+
 		return false;
 	}
+
 	public boolean isDisproved() {
 		return disproveCard != null;
 	}
+
 	public Player getDisprovePerson() {
 		return disprovePerson;
 	}
+
 	public void setDisprovePerson(Player disprovePerson) {
 		this.disprovePerson = disprovePerson;
 	}
-	
+
+	public void setSuspect(Card suspect) {
+		this.suspect = suspect;
+	}
+
+	public void setRoom(Card room) {
+		this.room = room;
+	}
+
+	public void setWeapon(Card weapon) {
+		this.weapon = weapon;
+	}
+
+	public void addCardToGuess(Card card) {
+		RuntimeException notNull = new RuntimeException("the card you tried to overwrite was not null");
+		if (card == null) {
+			return;
+		}
+
+		if (card.isSuspect()) {
+			if (this.getSuspect() == null) {
+				suspect = card;
+			} else {
+				throw notNull;
+			}
+		} else if (card.isRoom()) {
+			if (this.getRoom() == null) {
+				room = card;
+			} else {
+				throw notNull;
+			}
+		} else if (card.isWeapon()) {
+			if (this.getWeapon() == null) {
+				weapon = card;
+			} else {
+				throw notNull;
+			}
+		} else {
+			RuntimeException notType = new RuntimeException("card does not have a recognized type: " + card.getType());
+			throw notType;
+		}
+
+	}
+
 }
