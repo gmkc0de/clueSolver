@@ -13,7 +13,9 @@ import clueSolver.player.RandomPlayer;
 class TestGame {
 
 	@Test
+	
 	void test() {
+		
 		List<Player> players = new ArrayList<Player>();
 		Player anne  = new RandomPlayer("anne", null);
 		Player ben   = new RandomPlayer("ben", null);

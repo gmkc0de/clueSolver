@@ -30,7 +30,7 @@ public class GuessDb {
 		suspect = g.getSuspect().getName();
 		weapon = g.getWeapon().getName();
 		room = g.getRoom().getName();
-		isDisproved = g.isDisproved();
+		isDisproved = g.getDisprovingCard() != null;
 		if (g.getDisprovingCard() != null) {
 			disproveCard = g.getDisprovingCard().getName();
 		}

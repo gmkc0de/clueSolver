@@ -3,6 +3,7 @@ package clueSolver;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import clueSolver.db.CardDb;
 import clueSolver.db.GameDb;
@@ -15,7 +16,6 @@ import clueSolver.player.SmartPlayer;
 
 public class Game {
 
-	
 	private int id;
 	private ArrayList<Player> players;
 	private Card[] secretCards;
@@ -68,17 +68,16 @@ public class Game {
 		Game game = new Game();
 		for (int i = 0; i < numPlayers; i++) {
 			String name = game.testPlayerNames.get(i);
-			if(i == 0) {
+			if (i == 0) {
 				Player a = new SmartPlayer(name, game);
 				int order = game.addPlayer(a);
 				a.setOrder(order);
-			}else {
+			} else {
 				Player a = new RandomPlayer(name, game);
 				int order = game.addPlayer(a);
 				a.setOrder(order);
 			}
-			
-			
+
 		}
 
 		ArrayList<Card> cardList = new ArrayList<Card>();
@@ -87,10 +86,9 @@ public class Game {
 
 		}
 		L.i(">>test game created<<");
+		System.out.println(">>test game created<<");
 		return game;
 	}
-	
-	
 
 	public Player nextPlayersTurn() {
 		Player nextPlayer = null;
@@ -116,6 +114,8 @@ public class Game {
 
 	public void takeTurn() {
 		guessList.add(generateRandomGuess(nextPlayersTurn()));
+		System.out.println("sucessfull turn ");
+		
 	}
 
 	public void dealCards() {
@@ -145,12 +145,11 @@ public class Game {
 			int playerIndex = numCardsDealt % numPlayers;
 			Player p = players.get(playerIndex);
 			p.addToHand(c);
-			//insert(p.getName());
+			// insert(p.getName());
 			++numCardsDealt;
+			System.out.println(numCardsDealt + "cards delt");
 		}
 	}
-	
-	
 
 	public void oldDealCards() {
 		// deal the three secret cards
@@ -220,7 +219,6 @@ public class Game {
 		}
 
 	}
-	
 
 	private Player anyPlayerButThis(Player guesser) {
 		Player p = players.get((int) (Math.random() * players.size()));
@@ -229,45 +227,40 @@ public class Game {
 		}
 		return p;
 	}
+
 	// returns the list of players in [this game] minus the player you put in
 	private ArrayList<Player> allPlayersButThis(Player guesser) {
 		return allPlayersButThis(getPlayers(), guesser);
 	}
-	// returns the list of players you put in in the original order minus the player you put in 
+
+	// returns the list of players you put in in the original order minus the player
+	// you put in
 	protected static ArrayList<Player> allPlayersButThis(List<Player> players, Player guesser) {
 		ArrayList<Player> allButThis = new ArrayList<Player>();
 		allButThis.addAll(players);
 		allButThis.remove(guesser);
 		return allButThis;
 	}
+
 	// returns a list of players minus the guesser IN THE CORRECT GUESSING ORDER
-	protected static ArrayList<Player> disprovePlayerList(List<Player> players, Player guesser){
+	protected static ArrayList<Player> disprovePlayerList(List<Player> players, Player guesser) {
 		ArrayList<Player> newPlayerOrder = new ArrayList<Player>();
 		int guesserIndex = players.indexOf(guesser);
 		int numPlayers = players.size();
-		for(int i = 0; i < numPlayers -1; i++){
-			int nextIndex = (guesserIndex +1 +i )% numPlayers;
+		for (int i = 0; i < numPlayers - 1; i++) {
+			int nextIndex = (guesserIndex + 1 + i) % numPlayers;
 			newPlayerOrder.add(players.get(nextIndex));
 		}
-		
-		
 		return newPlayerOrder;
 	}
-	
-	
-	
-	
+
 	// playerList (0-4)
 	// player
 	// players index -> 2
 	// return a list in the following order
 	// 3,4,0,1
 	// 0,1,2,3,4
-	
-	
-	
 
-	
 	public boolean isRealCard(String name) {
 		for (Card current : getAllCards()) {
 			if (current.getName().equals(name)) {
@@ -294,29 +287,28 @@ public class Game {
 	}
 
 	private Guess generateRandomGuess(Player guesser) {
-		
+
 		Guess guess = guesser.makeGuess();
-		ArrayList<Player> possibleDisprovers = disprovePlayerList(getPlayers() ,guesser);		
-		Player disprover = null;
-		Card disCard = null;
-		
+		ArrayList<Player> possibleDisprovers = disprovePlayerList(getPlayers(), guesser);
+
 		for (Player p : possibleDisprovers) {
 			// checks if any players can disprove the guess
 			Card dis = p.disproveGuess(guess);
 			if (dis != null) {
 				// fills in cards if player can disprove
 				guess.setDisprovePerson(p);
-				disprover = p;
-				disCard = dis;
+				guess.setDisproveCard(dis);
 				break;
 			}
 
 		}
+		System.out.println(" random guess generated");
 		return guess;
 	}
+
 	public ArrayList<Card> findUnknownCards(Player p) {
 		ArrayList<Card> playerClues = findPlayerClues(p);
-		Card[] allCards =  getAllCards();
+		Card[] allCards = getAllCards();
 		ArrayList<Card> unknown = addAll(allCards);
 		unknown.removeAll(playerClues);
 
@@ -351,6 +343,7 @@ public class Game {
 
 	}
 
+	//clues know to the player (in their hand or shown by another player)
 	public ArrayList<Card> findPlayerClues(Player p) {
 		// add all the clues in the players hand
 		ArrayList<Card> playerClues = addAll(p.getHand());
@@ -360,7 +353,54 @@ public class Game {
 				playerClues.add(g.getDisprovingCard());
 			}
 		}
+		// returns a list of all the cards in players hand 
+		//as well as a list of all the disproving cards they player has seen so far
 		return playerClues;
+	}
+
+	public List<Guess> findPlayerGuessesStream(Player p) {
+
+		List<Guess> playerGuess = guessList.stream().filter(g -> g.getGuesser().equals(p)).collect(Collectors.toList());
+		return playerGuess;
+	}
+
+	public List<Guess> findPlayerGuesses(Player p, boolean isDisproven) {
+
+		List<Guess> playerGuesses = findPlayerGuessesStream(p);
+
+		List<Guess> playerGuess = playerGuesses.stream().filter(g -> g.isDisproved() == isDisproven)
+				.collect(Collectors.toList());
+
+		return playerGuess;
+
+	}
+
+	// findProvenCardOfType() -> null if not yet found, otherwise returns the card
+	public Card findProvenCardOfType(Player p, String type) {
+
+		// TODO: this only returns Cards from Players hand not the other way around
+		// > probably happens in .contain
+		// possibly change code so Players cards are never on the lists the streams sort
+		// at all?
+		// find all not disproven guesses
+		List<Guess> notDisproved = findPlayerGuesses(p, false);
+		List<Card> cardsOfTypeFromGuesses = new ArrayList<Card>();
+		List<Card> provenCards = new ArrayList<Card>();
+
+		notDisproved.stream()
+				// get all the cards from those guesses
+				.forEach(g -> cardsOfTypeFromGuesses.add(g.getCardOfTypeFromGuess(type)));
+
+		// find which cards are not in our hand - those cards are "proven"
+		provenCards = cardsOfTypeFromGuesses.stream()
+				.filter(c -> !(p.isCardInHand(c)))
+				.toList();
+
+		if (provenCards.size() > 0) {
+			return provenCards.get(0);
+		} else {
+			return null;
+		}
 	}
 
 	public ArrayList<Guess> findPLayerGuesses(Player p) {
@@ -374,6 +414,7 @@ public class Game {
 	}
 
 	public Guess findWinningGuess() {
+		// returns null unless all the cards in a guess match the secret cards in wich case it returns tht guess
 
 		for (Guess g : guessList) {
 			if (g.getSuspect().equals(secretCards[0]) && g.getWeapon().equals(secretCards[1])
@@ -405,8 +446,12 @@ public class Game {
 	}
 
 	public boolean hasWinningGuess() {
-
-		return findWinningGuess() != null;
+		if(findWinningGuess() != null) {
+			System.out.println(" winning guess found");
+			return true;
+		}
+		System.out.println(" no w g");
+		return false;
 	}
 
 	// Adders
@@ -482,8 +527,6 @@ public class Game {
 
 		return null;
 	}
-
-	
 
 	public ArrayList<Guess> getGuessList() {
 		return guessList;
@@ -567,7 +610,7 @@ public class Game {
 		return allCards;
 	}
 
-	public  ArrayList<Player> getPlayers() {
+	public ArrayList<Player> getPlayers() {
 		return players;
 	}
 
@@ -621,7 +664,8 @@ public class Game {
 	public int getId() {
 		return id;
 	}
-	//returns the index of a player on the players list
+
+	// returns the index of a player on the players list
 	public int getPlayerOrder(String name) {
 		int order;
 		ArrayList<Player> list = getPlayers();
@@ -635,10 +679,9 @@ public class Game {
 
 	}
 
-	
-	public Player findPLayerIndexOf(int num){
+	public Player findPLayerIndexOf(int num) {
 		ArrayList<Player> players = getPlayers();
-		if(num <= players.size()) {
+		if (num <= players.size()) {
 			return players.get(num);
 		}
 		return null;
@@ -657,7 +700,7 @@ public class Game {
 	}
 
 	public void save() {
-		
+
 		// inserts all cards into db when the db does not already have cards
 		boolean needsCards = CardDb.countCards(conn) <= 0;
 		if (needsCards) {
@@ -674,7 +717,7 @@ public class Game {
 		if (this.findWinningGuess() != null) {
 			winner = this.findWinningGuess().getMadeBy().getName();
 		}
-		
+
 		GameDb g = new GameDb(winner, secretSuspect, secretRoom, secretWeapon);
 		this.setId(g.insert(conn));
 
@@ -685,8 +728,6 @@ public class Game {
 			pDb.insertHand(conn, p.getHand());
 		}
 
-		
-		
 		// inserts this games guesses into db
 		for (int i = 0; i < guessList.size(); ++i) {
 			GuessDb gdb = new GuessDb(guessList.get(i), i, getId());
@@ -704,12 +745,12 @@ public class Game {
 		}
 
 	}
-	
+
 	// TODO move the methods below to a game util class
 	public static List<Card> getAllCardsWithType(String type, ArrayList<Card> cards) {
 		List<Card> typeCardList = new ArrayList<Card>();
-		for(Card c : cards) {
-			if(c.getType().equals(type)) {
+		for (Card c : cards) {
+			if (c.getType().equals(type)) {
 				typeCardList.add(c);
 			}
 		}
@@ -718,14 +759,13 @@ public class Game {
 
 	public static Card getRandomCardFromListWithType(String type, ArrayList<Card> cards) {
 		List<Card> choose = getAllCardsWithType(type, cards);
-		if(choose != null && choose.size() > 0){
+		if (choose != null && choose.size() > 0) {
 			Card c = choose.get(((int) (Math.random() * choose.size())));
 
 			return c;
-		}else {
+		} else {
 			return null;
 		}
-		
 
 	}
 
@@ -734,7 +774,6 @@ public class Game {
 		return allCards[((int) (Math.random() * allCards.length))];
 
 	}
-	
 
 	public Card getRandomCardOfATypeFromDeck(String type) {
 		Card[] allCards = this.getAllCards();
@@ -745,8 +784,7 @@ public class Game {
 			}
 
 		}
-		return ofType.get((int)(Math.random()* ofType.size()));
+		return ofType.get((int) (Math.random() * ofType.size()));
 	}
-
 
 }

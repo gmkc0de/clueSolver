@@ -1,5 +1,8 @@
 package clueSolver;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import clueSolver.player.Player;
 
 public class Guess {
@@ -76,6 +79,14 @@ public class Guess {
 		return disproveCard;
 	}
 
+	public List<Card> getCards() {
+		ArrayList<Card> all = new ArrayList<Card>();
+		all.add(getSuspect());
+		all.add(getWeapon());
+		all.add(getRoom());
+		return all;
+	}
+
 	public Player getDisprovePlayer() {
 		return disprovePerson;
 	}
@@ -115,6 +126,35 @@ public class Guess {
 
 	public void setWeapon(Card weapon) {
 		this.weapon = weapon;
+	}
+
+	public Card getDisproveCard() {
+		return disproveCard;
+	}
+
+	public void setDisproveCard(Card disproveCard) {
+		this.disproveCard = disproveCard;
+	}
+
+	public boolean containsCard(Card c) {
+
+		if (this.getCardOfTypeFromGuess(c.getType()) != null) {
+			return true;
+		}
+		return false;
+
+	}
+
+	public Card getCardOfTypeFromGuess(String type) {
+		if (type.equals("suspect")) {
+			return this.getSuspect();
+		} else if (type.equals("room")) {
+			return this.getRoom();
+		} else if (type.equals("weapon")) {
+			return this.getWeapon();
+		} else {
+			return null;
+		}
 	}
 
 	public void addCardToGuess(Card card) {

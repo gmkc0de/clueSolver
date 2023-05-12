@@ -1,8 +1,6 @@
 package clueSolver.player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import clueSolver.Card;
 import clueSolver.Game;
@@ -11,6 +9,7 @@ import clueSolver.Guess;
 public class SmartPlayer extends Player {
 
 	public static String SMART_TYPE = "smart";
+	public ArrayList<Card> notDisproven = new ArrayList<Card>();
 
 	public SmartPlayer(String name, Game g) {
 		this.name = name;
@@ -22,7 +21,6 @@ public class SmartPlayer extends Player {
 
 	}
 
-	
 	public Guess OldMakeGuess() {
 		Guess g = null;
 
@@ -52,6 +50,7 @@ public class SmartPlayer extends Player {
 
 		return g;
 	}
+
 	@Override
 	public Guess makeGuess() {
 		// TODO write a smart player make guess
@@ -70,14 +69,38 @@ public class SmartPlayer extends Player {
 		ArrayList<Card> cardsForGuess = new ArrayList<Card>();
 		// choose any card in hand
 		Card first = getRandomCardFromHand();
+		
+		//replace it with a proven card if there is one of this type
+		if (currentGame.findProvenCardOfType(this, first.getType()) != null) {
+			first = currentGame.findProvenCardOfType(this, first.getType());
+		}
 		cardsForGuess.add(first);
+		
 		String scndType = chooseDifferentType(first.getType());
 		Card scnd = getRandomCardFromHandWithType(scndType);
 
 		//if player has all cards of same type, second card will be null
-		//so, make a random guess from the deck instead
-		if (scnd == null) {
+		// so, if we have an already proven card use that instead
+		if (scnd == null && currentGame.findProvenCardOfType(this, scndType) != null) {
+			//error here?
+			scnd = currentGame.findProvenCardOfType(this, scndType);
+		}
+		if(scnd == null) {
+			//or, make a random guess from the deck instead
+			int counter = 0;
 			scnd = currentGame.getRandomCardOfATypeFromDeck(scndType);
+			while(hasSeenCard(scnd)) {
+				scnd = currentGame.getRandomCardOfATypeFromDeck(scndType);
+				++counter;
+				if(counter > 21) {
+					System.out.println("break!");
+				}
+			}
+			
+			
+			//TODO: make sure we have not already seen this card 
+			//(i.e. it's already disproven)
+			
 		}
 		cardsForGuess.add(scnd);
 
@@ -85,35 +108,23 @@ public class SmartPlayer extends Player {
 		ArrayList<Card> unknownCards = currentGame.findUnknownCards(this);
 		// select the third card in the guess from the only remaining options
 		Card third = Game.getRandomCardFromListWithType(type, unknownCards);
-		if (third == null) {
+		if (third == null && currentGame.findProvenCardOfType(this, type) != null) {
+			third = currentGame.findProvenCardOfType(this, type);
+		}else if (third == null) {
 			third = currentGame.getRandomCardOfATypeFromDeck(type);
 		}
 		cardsForGuess.add(third);
 		// fill in the guess
-
+		
 		smart.addCardToGuess(cardsForGuess.get(0));
 		smart.addCardToGuess(cardsForGuess.get(1));
 		smart.addCardToGuess(cardsForGuess.get(2));
 		
 		
-//		for(int i = 0; i < 3; i++) {
-//			for(Card t : cardsForGuess) {
-//				if(types[i].equals(t.getType())) {
-//					if(i == 0) {
-//						smart.setSuspect(t);
-//					}else if(i == 1) {
-//						smart.setRoom(t);
-//					}else if(i == 2) {
-//						smart.setWeapon(t);
-//					}
-//				}
-//			}
-//		}
-		
-		
-		
+	
 		return smart;
 	}
+
 	
 
 	public String getType() {
