@@ -60,17 +60,18 @@ public abstract class Player implements Comparable<Player> {
 	// then if card c is still on the clues list that means this player has seen it
 	public boolean hasSeenCard(Card c) {
 		//findPlayerClues returns all the cards in [this] players hand as well as every discard they have seen
+		if(hand.contains(c)) {
+			return true;
+		}
 		ArrayList<Card> clues = currentGame.findPlayerClues(this);
 		for(int i = 0; i < clues.size();i++ ) {
 			if(clues.get(i).isOnList(hand)) {
 				clues.remove(i);
 				i--;
 			}
-//			String cardName = c == null ? "null" : c.getName();
-//			System.out.println("hasSeenCard? "+cardName);
+
 		}
 		// true if c is already a clue false if it is not
-		System.out.println("hasSeenCard loop complete");
 		return clues.contains(c);
 	}
 
@@ -191,6 +192,7 @@ public abstract class Player implements Comparable<Player> {
 
 	public Card getRandomCardFromHand() {
 		return hand.get((int) (Math.random() * hand.size()));
+	
 	}
 
 	protected String findDifferentType(String type1, String type2) {
@@ -203,9 +205,26 @@ public abstract class Player implements Comparable<Player> {
 		}
 		return null;
 	}
+	public boolean isProvenType(String type) {
+		List<Card> ofType = new ArrayList<Card>();
+		List<Card> proven = new ArrayList<Card>();
+
+		for(Card c : currentGame.getAllOfType(type)) {
+			if(hand.contains(c)) {
+				ofType.add(c);
+			}
+		}
+		for(Card c : ofType) {
+			if(isCardProven(c)) {
+				proven.add(c);
+			}
+		}
+		// proven should be a list of cards from of type that have been proven
+		return proven.size() > 0;
+	}
 
 	public boolean isCardProven(Card c) {
-		// TODO: should search through all guesses player has made and find a list of
+		//  should search through all guesses player has made and find a list of
 		// proven cards.
 		// then check c against that list
 
@@ -250,6 +269,16 @@ public abstract class Player implements Comparable<Player> {
 		
 		
 		
+	}
+	protected boolean hasTypeInHand(String s) {
+		for(Card c : hand) {
+			if(c.getType().equals(s)) {
+				return true;
+			}else {
+				
+			}
+		}
+		return false;
 	}
 
 	abstract public Guess makeGuess();

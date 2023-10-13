@@ -2,7 +2,9 @@ package clueSolver;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import clueSolver.db.CardDb;
@@ -86,7 +88,6 @@ public class Game {
 
 		}
 		L.i(">>test game created<<");
-		System.out.println(">>test game created<<");
 		return game;
 	}
 
@@ -114,7 +115,7 @@ public class Game {
 
 	public void takeTurn() {
 		guessList.add(generateRandomGuess(nextPlayersTurn()));
-		System.out.println("sucessfull turn ");
+		
 		
 	}
 
@@ -145,9 +146,8 @@ public class Game {
 			int playerIndex = numCardsDealt % numPlayers;
 			Player p = players.get(playerIndex);
 			p.addToHand(c);
-			// insert(p.getName());
 			++numCardsDealt;
-			System.out.println(numCardsDealt + "cards delt");
+			
 		}
 	}
 
@@ -159,7 +159,7 @@ public class Game {
 
 		for (int i = 0; i < 3; i++) {
 			if (availibleCards.size() != 0) {
-				ArrayList<Card> typeList = getAllAnyType(whatType);
+				ArrayList<Card> typeList = getAllOfType(whatType);
 				int num = (int) (Math.random() * typeList.size());
 				secretCards[i] = typeList.get(num);
 				// removes dealt card from available list
@@ -302,7 +302,6 @@ public class Game {
 			}
 
 		}
-		System.out.println(" random guess generated");
 		return guess;
 	}
 
@@ -376,6 +375,25 @@ public class Game {
 	}
 
 	// findProvenCardOfType() -> null if not yet found, otherwise returns the card
+	public List<Card> findProvenCards(Player p) {
+
+		List<Guess> notDisprovedGuesses = findPlayerGuesses(p, false);
+		Set<Card> cardsFromGuesses = new HashSet<Card>();
+		List<Card> provenCards = new ArrayList<Card>();
+
+		notDisprovedGuesses.stream()
+		.forEach(g -> cardsFromGuesses.addAll(g.getCards()));
+		
+		
+		provenCards = cardsFromGuesses.stream()
+				.filter(c -> !(p.isCardInHand(c)))
+				.toList();
+
+		return provenCards;
+	}
+	
+	
+	// findProvenCardOfType() -> null if not yet found, otherwise returns the card
 	public Card findProvenCardOfType(Player p, String type) {
 
 		// TODO: this only returns Cards from Players hand not the other way around
@@ -447,10 +465,9 @@ public class Game {
 
 	public boolean hasWinningGuess() {
 		if(findWinningGuess() != null) {
-			System.out.println(" winning guess found");
+			
 			return true;
 		}
-		System.out.println(" no w g");
 		return false;
 	}
 
@@ -563,7 +580,7 @@ public class Game {
 
 	}
 
-	private ArrayList<Card> getAllAnyType(String whatType) {
+	public ArrayList<Card> getAllOfType(String whatType) {
 		if (whatType.equals("suspect")) {
 			return getAllSuspects();
 		} else if (whatType.equals("room")) {

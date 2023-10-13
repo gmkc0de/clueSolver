@@ -12,9 +12,9 @@ public class ClueApp {
 	// this app does not do any round by round reporting or recording
 	public static void main(String[] args) throws Exception {
 		
-		L.CURRENT_LEVEL = L.INFO;
+		L.CURRENT_LEVEL = L.ERROR;
 		//random number, that when you add 3 your range will be min: 3, max 6.
-		int numberOfGames = 1;
+		int numberOfGames = 1000;
 		
 		resetDatabase();
 		
@@ -43,9 +43,7 @@ public class ClueApp {
 			}
 			
 			game.save();
-			System.out.println("a game has been saved ");
 			game.cleanup();
-			System.out.println(i+" a game has been cleaned up ");
 		}
 		
 		ReportApp.main(args);

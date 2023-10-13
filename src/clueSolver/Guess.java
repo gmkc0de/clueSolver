@@ -80,11 +80,21 @@ public class Guess {
 	}
 
 	public List<Card> getCards() {
-		ArrayList<Card> all = new ArrayList<Card>();
+		List<Card> all = new ArrayList<Card>();
 		all.add(getSuspect());
 		all.add(getWeapon());
 		all.add(getRoom());
 		return all;
+	}
+	public Card getNotNullCard() {
+		List<Card> all = getCards();
+		for(Card c : all) {
+			if(c != null) {
+				return c;
+			}
+		}
+		System.out.println("getNotNullCard() could not find a non null card");
+		return null;
 	}
 
 	public Player getDisprovePlayer() {
@@ -187,5 +197,28 @@ public class Guess {
 		}
 
 	}
+	
+	
+	public void addAllCards(List<Card> cards) {
+		for(Card c : cards) {
+			addCardToGuess(c);
+		}
+	}
+	
+	public List<String> getMissingTypes() {
+		List<String> cardTypes = new ArrayList<String>();		
+		if(weapon == null) {
+			cardTypes.add("weapon");
+		}
+		if(room == null) {
+			cardTypes.add("room");
+		}
+		if(suspect == null) {
+			cardTypes.add("suspect");
+		}
+		return cardTypes;
+	}
+
+	
 
 }
