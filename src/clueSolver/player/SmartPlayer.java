@@ -26,7 +26,6 @@ public class SmartPlayer extends Player {
 
 	@Override
 	public Guess makeGuess() {
-		// TODO write a smart player make guess
 		/*
 		 * / this player should always guess two cards from their own hand and one card
 		 * they havent guessed yet when a guess cannot be disproved this player should
@@ -56,7 +55,9 @@ public class SmartPlayer extends Player {
 			smart.addCardToGuess(pick);
 		}
 		case 2: {
-			String missingType = smart.getMissingTypes().get(0);
+			// bug: when card 1 and 2 are "unknown" and "from hand" does not pick final card from hand.
+			// picks random card instead
+			String missingType = smart.getMissingTypes().get(0); // functions normally. gets correct missing type consistently
 			Card pick = pickThirdCard(missingType);
 			smart.addCardToGuess(pick);
 		}
@@ -145,7 +146,7 @@ public class SmartPlayer extends Player {
 	}
 
 	private Card pickThirdCard(String thirdType) {
-		ArrayList<Card> unknownCards = currentGame.findUnknownCards(this);
+		ArrayList<Card> unknownCards = currentGame.findUnknownCards(this); // no bug
 
 		// if the second card was not random
 		if (!isScndRandom) {
@@ -164,14 +165,14 @@ public class SmartPlayer extends Player {
 			return third;
 		} else {
 			// if the second card was random the third card should come from the hand
-			Card third = getRandomCardFromHandWithType(thirdType);
+			Card third = getRandomCardFromHandWithType(thirdType); // TODO: duplicate code?
 
 			// first check if there is a proven card of thirdType
 			if (third == null && currentGame.findProvenCardOfType(this, thirdType) != null) {
 				third = currentGame.findProvenCardOfType(this, thirdType);
 			} else if (getRandomCardFromHandWithType(thirdType) != null) {
 				// if there is no proven card get a card of thirdType form hand
-				third = getRandomCardFromHandWithType(thirdType);
+				third = getRandomCardFromHandWithType(thirdType);// TODO: duplicate code?
 
 			} else {
 				// if there is no card oftype in hand third will be a random card of type from
