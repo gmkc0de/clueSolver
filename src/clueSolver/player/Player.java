@@ -146,13 +146,14 @@ public abstract class Player implements Comparable<Player> {
 	}
 
 	public String chooseDifferentType(String type) {
+		
 		ArrayList<String> choices = new ArrayList<String>();
 		choices.add("room");
 		choices.add("weapon");
 		choices.add("suspect");
 		for (int i = 0; i < choices.size(); ++i) {
 			String s = choices.get(i);
-			if (s == type) {
+			if (s.equals(type)) {
 				--i;
 				choices.remove(s);
 			}

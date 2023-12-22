@@ -358,16 +358,17 @@ public class Game {
 	}
 
 	public List<Guess> findPlayerGuessesStream(Player p) {
-
+		// returns list of all guesses made by player p
+		
 		List<Guess> playerGuess = guessList.stream().filter(g -> g.getGuesser().equals(p)).collect(Collectors.toList());
 		return playerGuess;
 	}
 
-	public List<Guess> findPlayerGuesses(Player p, boolean isDisproven) {
+	public List<Guess> findPlayerGuessesNotDisproven(Player p) {
 
 		List<Guess> playerGuesses = findPlayerGuessesStream(p);
 
-		List<Guess> playerGuess = playerGuesses.stream().filter(g -> g.isDisproved() == isDisproven)
+		List<Guess> playerGuess = playerGuesses.stream().filter(g -> !g.isDisproved())
 				.collect(Collectors.toList());
 
 		return playerGuess;
@@ -377,7 +378,7 @@ public class Game {
 	// findProvenCardOfType() -> null if not yet found, otherwise returns the card
 	public List<Card> findProvenCards(Player p) {
 
-		List<Guess> notDisprovedGuesses = findPlayerGuesses(p, false);
+		List<Guess> notDisprovedGuesses = findPlayerGuessesNotDisproven(p);
 		Set<Card> cardsFromGuesses = new HashSet<Card>();
 		List<Card> provenCards = new ArrayList<Card>();
 
@@ -396,12 +397,8 @@ public class Game {
 	// findProvenCardOfType() -> null if not yet found, otherwise returns the card
 	public Card findProvenCardOfType(Player p, String type) {
 
-		// TODO: this only returns Cards from Players hand not the other way around
-		// > probably happens in .contain
-		// possibly change code so Players cards are never on the lists the streams sort
-		// at all?
 		// find all not disproven guesses
-		List<Guess> notDisproved = findPlayerGuesses(p, false);
+		List<Guess> notDisproved = findPlayerGuessesNotDisproven(p);
 		List<Card> cardsOfTypeFromGuesses = new ArrayList<Card>();
 		List<Card> provenCards = new ArrayList<Card>();
 
