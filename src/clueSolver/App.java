@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import clueSolver.player.Player;
@@ -54,14 +55,14 @@ public class App {
 				game.findPLayerGuesses(game.getPlayers().get(0));
 
 				L.i("my clues:");
-				ArrayList<Card> myClues = game.findPlayerClues(game.getMyPlayer());
+				List<Card> myClues = game.findPlayerClues(game.getMyPlayer());
 				for (Card c : myClues) {
 					L.i(c.getName());
 				}
 				L.i(">>----------<<");
 
 				L.i("unknow sus: ");
-				ArrayList<Card> test = game.findUnknownSuspects(game.getMyPlayer());
+				List<Card> test = game.findUnknownSuspects(game.getMyPlayer());
 				for (Card c : test) {
 					L.i(c.getName());
 				}

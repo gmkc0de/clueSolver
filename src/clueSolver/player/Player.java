@@ -3,6 +3,7 @@ package clueSolver.player;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import clueSolver.Card;
 import clueSolver.Game;
@@ -12,8 +13,7 @@ import clueSolver.L;
 public abstract class Player implements Comparable<Player> {
 
 	protected String name;
-
-	protected ArrayList<Card> hand;
+	protected List<Card> hand;
 	protected Game currentGame;
 	protected boolean isComputer;
 	protected int turnOrder;
@@ -26,8 +26,15 @@ public abstract class Player implements Comparable<Player> {
 		return isComputer;
 	}
 
+	public void setIsComputer(boolean isComp) {
+		isComputer = isComp;
+	}
+	
 	public String getName() {
 		return name;
+	}
+	public void setName(String n) {
+		name = n;
 	}
 
 	public int getTurnOrder() {
@@ -41,7 +48,8 @@ public abstract class Player implements Comparable<Player> {
 	public void setCurrentGame(Game newGame) {
 		this.currentGame = newGame;
 	}
-
+	
+	
 	public void printHand() {
 		for (Card c : hand) {
 			System.out.println(c.getName() + "-" + c.getType());
@@ -55,17 +63,21 @@ public abstract class Player implements Comparable<Player> {
 		}
 		return false;
 	}
-	// this method gets all the clues(cards the player knows arent the secret cards)
+
+	// this method gets all the clues (cards the [this] player knows arent the
+	// secret cards)
 	// and removes the cards in this players hand from those clues
-	// then if card c is still on the clues list that means this player has seen it
+	// then if card c is still on the clues list that means [this]player has seen it
 	public boolean hasSeenCard(Card c) {
-		//findPlayerClues returns all the cards in [this] players hand as well as every discard they have seen
-		if(hand.contains(c)) {
+
+		if (hand.contains(c)) {
 			return true;
 		}
-		ArrayList<Card> clues = currentGame.findPlayerClues(this);
-		for(int i = 0; i < clues.size();i++ ) {
-			if(clues.get(i).isOnList(hand)) {
+		// findPlayerClues returns all the cards in [this] players hand as well as every
+		// discard they have seen
+		List<Card> clues = currentGame.findPlayerClues(this);
+		for (int i = 0; i < clues.size(); i++) {
+			if (clues.get(i).isOnList(hand)) {
 				clues.remove(i);
 				i--;
 			}
@@ -75,39 +87,47 @@ public abstract class Player implements Comparable<Player> {
 		return clues.contains(c);
 	}
 
-	public ArrayList<Card> findDisprovingCards(Guess g) {
-		ArrayList<Card> canDisprove = new ArrayList<Card>();
-		ArrayList<Card> guessCards = new ArrayList<Card>();
+	public List<Card> findAllSeenCards() {
+		List<Card> clues = currentGame.findPlayerClues(this);
+		clues = clues.stream().filter(c -> !c.isOnList(hand)).collect(Collectors.toList());
+		return clues;
+	}
+
+	public List<Card> findDisprovingCards(Guess g) {
+		List<Card> canDisprove = new ArrayList<Card>();
+		List<Card> guessCards = new ArrayList<Card>();
 		guessCards.add(g.getRoom());
 		guessCards.add(g.getSuspect());
-		guessCards.add(g.getWeapon());		
-		
+		guessCards.add(g.getWeapon());
+
 		for (Card c : guessCards) {
 			if (hand.contains(c)) {
 				canDisprove.add(c);
 			}
 		}
-		// returns a list 
+		// returns a list
 		return canDisprove;
 	}
 
 	public Card disproveGuess(Guess g) {
-		//this is a list of all the cards in the players hand and all the discards theyve seen 
-		ArrayList<Card> canDisprove = findDisprovingCards(g);
+		// this is a list of all the cards in the players hand and all the discards
+		// theyve seen
+		List<Card> canDisprove = findDisprovingCards(g);
 		if (canDisprove.size() > 0) {
 			for (Card c : canDisprove) {
 				// if the player has a card the guesser has already seen they will show that one
-				if (this.haveAlreadyShownCardTo(g.getGuesser(),c)) {
+				if (this.haveAlreadyShownCardTo(g.getGuesser(), c)) {
 					return c;
 				}
 			}
-			
-			L.i(">>"+name+" has disproved " + g.getGuesser().getName() + "'s guess with the " + canDisprove.get(0).getName()
-					+ " card" + "<<");
-			// if the player doesn't have an already shown card they return the first one on the list
+
+			L.i(">>" + name + " has disproved " + g.getGuesser().getName() + "'s guess with the "
+					+ canDisprove.get(0).getName() + " card" + "<<");
+			// if the player doesn't have an already shown card they return the first one on
+			// the list
 			return canDisprove.get(0);
 		} else {
-			L.i(">>"+name+" cannot disprove this guess<<");
+			L.i(">>" + name + " cannot disprove this guess<<");
 			return null;
 		}
 	}
@@ -137,17 +157,17 @@ public abstract class Player implements Comparable<Player> {
 
 	}
 
-	public ArrayList<Card> getHand() {
+	public List<Card> getHand() {
 		return hand;
 	}
 
-	public void setHand(ArrayList<Card> hand) {
+	public void setHand(List<Card> hand) {
 		this.hand = hand;
 	}
-
+	
 	public String chooseDifferentType(String type) {
-		
-		ArrayList<String> choices = new ArrayList<String>();
+
+		List<String> choices = new ArrayList<String>();
 		choices.add("room");
 		choices.add("weapon");
 		choices.add("suspect");
@@ -161,20 +181,30 @@ public abstract class Player implements Comparable<Player> {
 		return choices.get(((int) (Math.random() * choices.size())));
 	}
 
-	public List<Card> getCardsFromHandOfType(String type){
-		
-		return hand.stream()
-		.filter(c -> c.getType().equals(type))
-		.toList();
+	public List<Card> getCardsFromHandOfType(String type) {
+
+		return hand.stream().filter(c -> c.getType().equals(type)).toList();
 	}
 	
+	public Card getUnseenCardOfAtypeFromDeck(String type) {
+		List<Card> clues = currentGame.findPlayerClues(this);
+		List<Card> ofType = currentGame.getAllOfType(type);
+		if (ofType.isEmpty()) {
+			return null;
+		} else {
+			List<Card> unseen = ofType.stream().filter(c -> !c.isOnList(clues)).collect(Collectors.toList());
+			int index = (int) (Math.random() * unseen.size());
+			return unseen.get(index);
+		}
+
+	}
+
 	public Card getRandomCardFromHandWithType(String type) {
 		List<Card> ofType = getCardsFromHandOfType(type);
-		if(ofType.isEmpty()) {
+		if (ofType.isEmpty()) {
 			return null;
-		}
-		else {
-			int index = (int)(Math.random() * ofType.size());
+		} else {
+			int index = (int) (Math.random() * ofType.size());
 			return ofType.get(index);
 		}
 
@@ -193,7 +223,7 @@ public abstract class Player implements Comparable<Player> {
 
 	public Card getRandomCardFromHand() {
 		return hand.get((int) (Math.random() * hand.size()));
-	
+
 	}
 
 	protected String findDifferentType(String type1, String type2) {
@@ -206,17 +236,18 @@ public abstract class Player implements Comparable<Player> {
 		}
 		return null;
 	}
+
 	public boolean isProvenType(String type) {
 		List<Card> ofType = new ArrayList<Card>();
 		List<Card> proven = new ArrayList<Card>();
 
-		for(Card c : currentGame.getAllOfType(type)) {
-			if(hand.contains(c)) {
+		for (Card c : currentGame.getAllOfType(type)) {
+			if (hand.contains(c)) {
 				ofType.add(c);
 			}
 		}
-		for(Card c : ofType) {
-			if(isCardProven(c)) {
+		for (Card c : ofType) {
+			if (isCardProven(c)) {
 				proven.add(c);
 			}
 		}
@@ -225,7 +256,7 @@ public abstract class Player implements Comparable<Player> {
 	}
 
 	public boolean isCardProven(Card c) {
-		//  should search through all guesses player has made and find a list of
+		// should search through all guesses player has made and find a list of
 		// proven cards.
 		// then check c against that list
 
@@ -233,11 +264,8 @@ public abstract class Player implements Comparable<Player> {
 			return false;
 		}
 
-		long provenCount = currentGame.getGuessList().stream()
-				.filter(g -> g.getGuesser().equals(this))
-				.filter(g -> !g.isDisproved())
-				.filter(g -> g.containsCard(c)).count();
-
+		long provenCount = currentGame.getGuessList().stream().filter(g -> g.getGuesser().equals(this))
+				.filter(g -> !g.isDisproved()).filter(g -> g.containsCard(c)).count();
 
 		return provenCount > 0;
 
@@ -246,37 +274,35 @@ public abstract class Player implements Comparable<Player> {
 	public boolean isCardInHand(Card c) {
 
 		return hand.contains(c);
-		
-		//stream way
-		//hand.stream().anyMatch(h -> h.equals(c));
+
+		// stream way
+		// hand.stream().anyMatch(h -> h.equals(c));
 
 	}
+
 	public boolean haveAlreadyShownCardTo(Player p, Card c) {
-		//TODO this method should: 
-		//get all of a players guesses from the guesslist
+		// TODO this method should:
+		// get all of a players guesses from the guesslist
 		List<Card> disCards = new ArrayList<Card>();
-		
-		for(Guess g : currentGame.getGuessList()) {
-			//filter them so the only guesses remainng are ones disproven by this player
-		
-			if(g.getDisprovePerson()!= null && g.getDisprovePerson().equals(this)) {
+
+		for (Guess g : currentGame.getGuessList()) {
+			// filter them so the only guesses remainng are ones disproven by this player
+
+			if (g.getDisprovePerson() != null && g.getDisprovePerson().equals(this)) {
 				disCards.add(g.getDisproveCard());
 			}
 		}
 		// return true if card c matches any of those cards
 		return disCards.contains(c);
-		
-		
-		
-		
-		
+
 	}
+
 	protected boolean hasTypeInHand(String s) {
-		for(Card c : hand) {
-			if(c.getType().equals(s)) {
+		for (Card c : hand) {
+			if (c.getType().equals(s)) {
 				return true;
-			}else {
-				
+			} else {
+
 			}
 		}
 		return false;

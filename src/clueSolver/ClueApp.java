@@ -14,7 +14,7 @@ public class ClueApp {
 		
 		L.CURRENT_LEVEL = L.ERROR;
 		//random number, that when you add 3 your range will be min: 3, max 6.
-		int numberOfGames = 5000;
+		int numberOfGames = 5;
 		
 		resetDatabase();
 		

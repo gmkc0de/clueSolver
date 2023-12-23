@@ -1,6 +1,7 @@
 package clueSolver.player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import clueSolver.Card;
 import clueSolver.Game;
@@ -10,6 +11,9 @@ public class RandomPlayer extends Player {
 	
 	public String RANDOM_TYPE = "random";
 	
+	public RandomPlayer() {
+		super();
+	}
 	public RandomPlayer(String name, Game g) {
 		this.name = name;
 		
@@ -23,10 +27,10 @@ public class RandomPlayer extends Player {
 	public Guess makeGuess() {
 		Guess g = null;
 		
-		ArrayList<Card> suspects = currentGame.findUnknownSuspects(this);
-		ArrayList<Card> weapons = currentGame.findUnknownWeapons(this);
-		ArrayList<Card> rooms = currentGame.findUnknownRooms(this);
-		ArrayList<Card> guessCards = new ArrayList<Card>();
+		List<Card> suspects = currentGame.findUnknownSuspects(this);
+		List<Card> weapons = currentGame.findUnknownWeapons(this);
+		List<Card> rooms = currentGame.findUnknownRooms(this);
+		List<Card> guessCards = new ArrayList<Card>();
 		
 		//ArrayList<Player> possibleDisprovers = allPlayersButThis(guesser);
 		// calc all random cards
